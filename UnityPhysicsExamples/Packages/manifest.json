@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.unity.bounds": "file:C:/code/com.unity.bounds/BoundsExample/Packages/com.unity.bounds",
+    "com.unity.bounds": "file:C:/Users/Andres/Development/com.unity.bounds",
     "com.unity.burst": "1.1.0-preview.2",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.performance.profile-analyzer": "0.4.0-preview.5",
