@@ -21,7 +21,7 @@ namespace Unity.Physics.Extensions
             {
                 case ColliderType.Sphere:
                 {
-                    Bounds bounds = mesh.bounds;
+                    UnityEngine.Bounds bounds = mesh.bounds;
                     return SphereCollider.Create(bounds.center, math.cmax(bounds.extents));
                 }
                 case ColliderType.Triangle:
@@ -69,12 +69,12 @@ namespace Unity.Physics.Extensions
                 }
                 case ColliderType.Box:
                 {
-                    Bounds bounds = mesh.bounds;
+                    UnityEngine.Bounds bounds = mesh.bounds;
                     return BoxCollider.Create(bounds.center, quaternion.identity, 2.0f * bounds.extents, 0.0f);
                 }
                 case ColliderType.Capsule:
                 {
-                    Bounds bounds = mesh.bounds;
+                    UnityEngine.Bounds bounds = mesh.bounds;
                     float min = math.cmin(bounds.extents);
                     float max = math.cmax(bounds.extents);
                     int x = math.select(math.select(2, 1, min == bounds.extents.y), 0, min == bounds.extents.x);
