@@ -6,6 +6,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Entities;
 using UnityEngine.Assertions;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -40,19 +41,19 @@ namespace Unity.Physics
             var builder = new ConvexHullBuilder(vertices, verticesCapacity, triangles, triangleCapacity);
             float3 s = scale ?? new float3(1);
 
-            // Build the points' AABB and validate them
-            var domain = new Aabb();
+            // Build the points' bounding octahedron and validate them
+            var domain = new AxisAlignedBoundingOctahedron();
             foreach (var point in points)
             {
                 if (math.any(!math.isfinite(point)))
                 {
                     throw new ArgumentException("Tried to create ConvexCollider with invalid points");
                 }
-                domain.Include(point * s);
+                domain.Add(point * s);
             }
 
             // Add points to the hull
-            builder.IntegerSpaceAabb = domain;
+            builder.IntegerSpaceAabb = new Aabb(domain);
             foreach (float3 point in points)
             {
                 builder.AddPoint(point * s);

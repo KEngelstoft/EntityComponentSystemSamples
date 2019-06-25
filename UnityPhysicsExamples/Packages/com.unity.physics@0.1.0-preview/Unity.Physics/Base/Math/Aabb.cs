@@ -17,6 +17,13 @@ namespace Unity.Physics
         public float3 Center => (Max + Min) * 0.5f;
         public bool IsValid => math.all(Min <= Max);
 
+        public Aabb(Unity.Bounds.AxisAlignedBoundingOctahedron aabo)
+        {
+            Unity.Bounds.AxisAlignedBoundingBox aabb = aabo.CircumscribedAABB;
+            Min = aabb.min;
+            Max = aabb.max;
+        }
+
         // Create an empty, invalid AABB
         public static readonly Aabb Empty = new Aabb { Min = Math.Constants.Max3F, Max = Math.Constants.Min3F };
 
