@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -30,22 +31,24 @@ namespace Unity.Physics
 
         #region ICollidable implementation
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
             if (Collider != null)
             {
-                return Collider->CalculateAabb(WorldFromBody);
+                return Collider->CalculateAxisAlignedBoundingOctahedron(WorldFromBody);
             }
-            return new Aabb { Min = WorldFromBody.pos, Max = WorldFromBody.pos };
+            Aabb aabb = new Aabb { Min = WorldFromBody.pos, Max = WorldFromBody.pos };
+            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
         }
 
-        public Aabb CalculateAabb(RigidTransform transform)
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
             if (Collider != null)
             {
-                return Collider->CalculateAabb(math.mul(transform, WorldFromBody));
+                return Collider->CalculateAxisAlignedBoundingOctahedron(math.mul(transform, WorldFromBody));
             }
-            return new Aabb { Min = WorldFromBody.pos, Max = WorldFromBody.pos };
+            Aabb aabb = new Aabb { Min = WorldFromBody.pos, Max = WorldFromBody.pos };
+            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
         }
 
         public bool CastRay(RaycastInput input) => QueryWrappers.RayCast(ref this, input);

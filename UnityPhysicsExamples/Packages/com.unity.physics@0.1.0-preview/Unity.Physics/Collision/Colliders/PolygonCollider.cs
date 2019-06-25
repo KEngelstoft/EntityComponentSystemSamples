@@ -2,6 +2,7 @@
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Entities;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -214,18 +215,19 @@ namespace Unity.Physics
             }
         }
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
             float3 min = math.min(math.min(ConvexHull.Vertices[0], ConvexHull.Vertices[1]), math.min(ConvexHull.Vertices[2], ConvexHull.Vertices[3]));
             float3 max = math.max(math.max(ConvexHull.Vertices[0], ConvexHull.Vertices[1]), math.max(ConvexHull.Vertices[2], ConvexHull.Vertices[3]));
-            return new Aabb
+            Aabb aabb = new Aabb
             {
                 Min = min - new float3(ConvexHull.ConvexRadius),
                 Max = max + new float3(ConvexHull.ConvexRadius)
             };
+            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
         }
 
-        public Aabb CalculateAabb(RigidTransform transform)
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
             float3 v0 = math.rotate(transform, ConvexHull.Vertices[0]);
             float3 v1 = math.rotate(transform, ConvexHull.Vertices[1]);
@@ -234,11 +236,12 @@ namespace Unity.Physics
 
             float3 min = math.min(math.min(v0, v1), math.min(v2, v3));
             float3 max = math.max(math.max(v0, v1), math.max(v2, v3));
-            return new Aabb
+            Aabb aabb = new Aabb
             {
                 Min = min + transform.pos - new float3(ConvexHull.ConvexRadius),
                 Max = max + transform.pos + new float3(ConvexHull.ConvexRadius)
             };
+            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
         }
 
         // Cast a ray against this collider.

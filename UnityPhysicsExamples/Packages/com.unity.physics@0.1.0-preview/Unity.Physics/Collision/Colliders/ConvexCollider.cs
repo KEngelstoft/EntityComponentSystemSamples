@@ -301,12 +301,12 @@ namespace Unity.Physics
         public Material Material { get => m_Header.Material; set => m_Header.Material = value; }
         public MassProperties MassProperties { get; private set; }
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return CalculateAabb(RigidTransform.identity);
+            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
         }
 
-        public Aabb CalculateAabb(RigidTransform transform)
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
             BlobArray.Accessor<float3> vertices = ConvexHull.Vertices;
             float3 min = math.rotate(transform, vertices[0]);
@@ -317,11 +317,12 @@ namespace Unity.Physics
                 min = math.min(min, v);
                 max = math.max(max, v);
             }
-            return new Aabb
+            Aabb aabb = new Aabb
             {
                 Min = min + transform.pos - new float3(ConvexHull.ConvexRadius),
                 Max = max + transform.pos + new float3(ConvexHull.ConvexRadius)
             };
+            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
         }
 
         // Cast a ray against this collider.

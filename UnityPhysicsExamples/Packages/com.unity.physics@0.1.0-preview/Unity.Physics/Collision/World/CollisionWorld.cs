@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using static Unity.Physics.Math;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -110,14 +111,15 @@ namespace Unity.Physics
 
         #region ICollidable implementation
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return Broadphase.Domain;
+            return new AxisAlignedBoundingOctahedron(Broadphase.Domain.Min, Broadphase.Domain.Max);
         }
 
-        public Aabb CalculateAabb(RigidTransform transform)
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
-            return TransformAabb(transform, Broadphase.Domain);
+            Aabb aabb = TransformAabb(transform, Broadphase.Domain);
+            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
         }
 
         public bool CastRay(RaycastInput input) => QueryWrappers.RayCast(ref this, input);

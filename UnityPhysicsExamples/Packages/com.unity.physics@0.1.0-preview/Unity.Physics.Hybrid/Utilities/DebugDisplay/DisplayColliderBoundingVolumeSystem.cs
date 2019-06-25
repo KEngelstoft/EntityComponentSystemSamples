@@ -24,7 +24,7 @@ namespace Unity.Physics.Authoring
             {
                 if (Bodies[b].Collider != null)
                 {
-                    Aabb aabb = Bodies[b].Collider->CalculateAabb(Bodies[b].WorldFromBody);
+                    Aabb aabb = new Aabb(Bodies[b].Collider->CalculateAxisAlignedBoundingOctahedron(Bodies[b].WorldFromBody));
 
                     float3 center = aabb.Center;
                     OutputStream.Box(aabb.Extents, center, Quaternion.identity, new Color(0.7f, 0.125f, 0.125f));

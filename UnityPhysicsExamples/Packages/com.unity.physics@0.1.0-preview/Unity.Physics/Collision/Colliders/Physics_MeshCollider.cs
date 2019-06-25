@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Entities;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -162,15 +163,16 @@ namespace Unity.Physics
             }
         }
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return m_Aabb;
+            return new AxisAlignedBoundingOctahedron(m_Aabb.Min, m_Aabb.Max);
         }
 
-        public Aabb CalculateAabb(RigidTransform transform)
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
-            // TODO: Store a convex hull wrapping the mesh, and use that to calculate tighter AABBs?
-            return Math.TransformAabb(transform, m_Aabb);
+            // TODO: Store a convex hull wrapping the mesh, and use that to calculate tighter bounds?
+            Aabb aabb = Math.TransformAabb(transform, m_Aabb);
+            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
         }
 
         // Cast a ray against this collider.

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -400,7 +401,8 @@ namespace Unity.Physics
             float3 aabbExtents;
             Ray aabbRay;
             {
-                Aabb aabb = input.Collider->CalculateAabb(new RigidTransform(input.Orientation, input.Start));
+                AxisAlignedBoundingOctahedron aabo = input.Collider->CalculateAxisAlignedBoundingOctahedron(new RigidTransform(input.Orientation, input.Start));
+                Aabb aabb = new Aabb(aabo);
                 aabbExtents = aabb.Extents;
                 aabbRay = input.Ray;
                 aabbRay.Origin = aabb.Min;
@@ -522,9 +524,9 @@ namespace Unity.Physics
             int* stack = binaryStack;
             *stack++ = 1;
 
-            Aabb aabb = input.Collider->CalculateAabb(input.Transform);
+            AxisAlignedBoundingOctahedron aabo = input.Collider->CalculateAxisAlignedBoundingOctahedron(input.Transform);
             FourTransposedAabbs aabbT;
-            (&aabbT)->SetAllAabbs(aabb);
+            (&aabbT)->SetAllAabbs(new Aabb(aabo));
             float4 maxDistanceSquared = new float4(collector.MaxFraction * collector.MaxFraction);
 
             do

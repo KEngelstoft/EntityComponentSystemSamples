@@ -9,7 +9,7 @@ using Unity.Mathematics;
 using UnityEngine.Assertions;
 using static Unity.Physics.BoundingVolumeHierarchy;
 using static Unity.Physics.Math;
-
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -604,7 +604,7 @@ namespace Unity.Physics
                 if (body.Collider != null)
                 {
                     MotionExpansion expansion = MotionVelocities[index].CalculateExpansion(TimeStep);
-                    aabb = expansion.ExpandAabb(body.Collider->CalculateAabb(body.WorldFromBody));
+                    aabb = expansion.ExpandAabb(new Aabb(body.Collider->CalculateAxisAlignedBoundingOctahedron(body.WorldFromBody)));
                     aabb.Expand(AabbMargin);
 
                     FiltersOut[index] = body.Collider->Filter;
@@ -649,7 +649,8 @@ namespace Unity.Physics
                 Aabb aabb;
                 if (body.Collider != null)
                 {
-                    aabb = body.Collider->CalculateAabb(body.WorldFromBody);
+                    AxisAlignedBoundingOctahedron aabo = body.Collider->CalculateAxisAlignedBoundingOctahedron(body.WorldFromBody);
+                    aabb = new Aabb(aabo);
                     aabb.Expand(AabbMargin);
 
                     FiltersOut[index] = RigidBodies[index].Collider->Filter;
