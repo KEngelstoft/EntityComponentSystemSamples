@@ -6,9 +6,9 @@
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Transforms",
-        "Unity.Jobs"
+        "Unity.Jobs",
+        "Unity.Bounds"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
