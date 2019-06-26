@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using Unity.Bounds;
+using Unity.Collections;
 
 namespace Unity.Physics
 {
@@ -155,6 +156,26 @@ namespace Unity.Physics
                 Min = centerInB - halfExtentsInB,
                 Max = centerInB + halfExtentsInB
             };
+        }
+
+        // Transform an AABO into another space, expanding it as needed.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AxisAlignedBoundingOctahedron TransformAabo(MTransform transform, AxisAlignedBoundingOctahedron aabo)
+        {
+            AxisAlignedBoundingOctahedron transformedAabo = new AxisAlignedBoundingOctahedron();
+            transformedAabo.Reset();
+
+            // Generate convex hull
+            var aaboMesh = Utils.GenerateMesh(aabo, Allocator.Temp);
+            for (int i = 0; i < aaboMesh.indices.Length; ++i)
+            {
+                var idx0 = aaboMesh.indices[i];
+                float3 transformed = Mul(transform, aaboMesh.vertices[idx0]);
+                transformedAabo.Add(transformed);
+            }
+            aaboMesh.Dispose();
+
+            return transformedAabo;
         }
     }
 }

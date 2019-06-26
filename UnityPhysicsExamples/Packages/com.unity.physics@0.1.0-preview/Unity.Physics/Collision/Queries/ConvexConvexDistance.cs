@@ -276,8 +276,7 @@ namespace Unity.Physics
                 // Initialize int space
                 // TODO - either the hull should be robust when int space changes after points are already added, or the ability to do so should be removed, probably the latter
                 // Currently for example a valid triangle can collapse to a line segment when the bounds grow
-                Aabb aabb = GetSupportingAabb(verticesA, numVerticesA, verticesB, numVerticesB, aFromB);
-                hull.IntegerSpaceAabo = new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+                hull.IntegerSpaceAabo = GetSupportingAabo(verticesA, numVerticesA, verticesB, numVerticesB, aFromB);
 
                 // Add simplex vertices to the hull, remove any vertices from the simplex that do not increase the hull dimension
                 hull.AddPoint(simplex.A.Xyz, simplex.A.Id);
@@ -554,26 +553,24 @@ namespace Unity.Physics
             return new SupportVertex { Xyz = verticesA[ia] - Mul(aFromB, verticesB[ib]), Id = ((uint)ia) << 16 | (uint)ib };
         }
 
-        // Returns an AABB containing the CSO in A-space
-        private static unsafe Aabb GetSupportingAabb(
+        // Returns an AABO containing the CSO in A-space
+        private static unsafe AxisAlignedBoundingOctahedron GetSupportingAabo(
             float3* verticesA, int numVerticesA, float3* verticesB, int numVerticesB, MTransform aFromB)
         {
-            Aabb aabbA = new Aabb { Min = verticesA[0], Max = verticesA[0] };
+            AxisAlignedBoundingOctahedron aaboA = new AxisAlignedBoundingOctahedron(verticesA[0]);
             for (int i = 1; i < numVerticesA; i++)
             {
-                aabbA.Min = math.min(aabbA.Min, verticesA[i]);
-                aabbA.Max = math.max(aabbA.Max, verticesA[i]);
+                aaboA.Add(verticesA[i]);
             }
 
-            Aabb aabbB = new Aabb { Min = verticesB[0], Max = verticesB[0] };
+            AxisAlignedBoundingOctahedron aaboB = new AxisAlignedBoundingOctahedron(verticesB[0]);
             for (int i = 1; i < numVerticesB; i++)
             {
-                aabbB.Min = math.min(aabbB.Min, verticesB[i]);
-                aabbB.Max = math.max(aabbB.Max, verticesB[i]);
+                aaboB.Add(verticesB[i]);
             }
 
-            Aabb aabbBinA = Math.TransformAabb(aFromB, aabbB);
-            return new Aabb { Min = aabbA.Min - aabbBinA.Max, Max = aabbA.Max - aabbBinA.Min };
+            AxisAlignedBoundingOctahedron aabbBinA = Math.TransformAabo(aFromB, aaboB);
+            return new AxisAlignedBoundingOctahedron { Min = aaboA.Min - aabbBinA.Max, Max = aaboA.Max - aabbBinA.Min };
         }
     }
 }

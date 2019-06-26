@@ -318,7 +318,7 @@ public class DebugStream : ComponentSystem
         public void Draw()
         {
 #if UNITY_EDITOR
-            var aaboMesh = Utils.GenerateMesh(Aabo);
+            var aaboMesh = Utils.GenerateMesh(Aabo, Allocator.Temp);
             var numLines = aaboMesh.indices.Length / 2;
 
             Handles.color = Color;
