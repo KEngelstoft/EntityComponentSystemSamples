@@ -73,8 +73,8 @@ namespace Unity.Physics.Authoring
                 RigidBody bodyA = World.Bodies[triggerEvent.BodyIndices.BodyAIndex];
                 RigidBody bodyB = World.Bodies[triggerEvent.BodyIndices.BodyBIndex];
 
-                Aabb aabbA = bodyA.Collider->CalculateAabb(bodyA.WorldFromBody);
-                Aabb aabbB = bodyB.Collider->CalculateAabb(bodyB.WorldFromBody);
+                Aabb aabbA = new Aabb(bodyA.Collider->CalculateAxisAlignedBoundingOctahedron(bodyA.WorldFromBody));
+                Aabb aabbB = new Aabb(bodyB.Collider->CalculateAxisAlignedBoundingOctahedron(bodyB.WorldFromBody));
                 outputContext.Line(aabbA.Center, aabbB.Center, Color.yellow);
 
                 OutputStream[0] = outputContext;

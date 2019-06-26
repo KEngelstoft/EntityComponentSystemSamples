@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -208,23 +209,19 @@ namespace Unity.Physics
         public Material Material { get => m_Header.Material; set => m_Header.Material = value; }
         public MassProperties MassProperties { get; private set; }
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return CalculateAabb(RigidTransform.identity);
+            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
         }
 
-        public unsafe Aabb CalculateAabb(RigidTransform transform)
+        public unsafe AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
             transform = math.mul(transform, new RigidTransform(m_Orientation, m_Center));
             float3 axis = math.rotate(transform, new float3(0, 0, 1));
             float3 v0 = transform.pos + axis * m_Height * 0.5f;
             float3 v1 = transform.pos - axis * m_Height * 0.5f;
             float3 e = m_Radius;
-            return new Aabb
-            {
-                Min = math.min(v0, v1) - e,
-                Max = math.max(v0, v1) + e
-            };
+            return new AxisAlignedBoundingOctahedron(math.min(v0, v1) - e, math.max(v0, v1) + e);
         }
 
         // Cast a ray against this collider.

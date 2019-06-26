@@ -1,6 +1,7 @@
 using System;
 using Unity.Collections;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -55,14 +56,14 @@ namespace Unity.Physics
 
         #region ICollidable implementation
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return CollisionWorld.CalculateAabb();
+            return CollisionWorld.CalculateAxisAlignedBoundingOctahedron();
         }
 
-        public Aabb CalculateAabb(RigidTransform transform)
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
-            return CollisionWorld.CalculateAabb(transform);
+            return CollisionWorld.CalculateAxisAlignedBoundingOctahedron(transform);
         }
 
         // Cast ray

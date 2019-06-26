@@ -1,18 +1,19 @@
 ﻿using Unity.Collections;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
     // Interface for objects that can be hit by physics queries.
     public interface ICollidable    // TODO: rename to Physics.IQueryable?
     {
-        // Bounding box
+        // Bounding octahedron
 
-        // Calculate an axis aligned bounding box around the object, in local space.
-        Aabb CalculateAabb();
+        // Calculate an axis aligned bounding octahedron around the object, in local space.
+        AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron();
 
-        // Calculate an axis aligned bounding box around the object, in the given space.
-        Aabb CalculateAabb(RigidTransform transform);
+        // Calculate an axis aligned bounding octahedron around the object, in the given space.
+        AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform);
 
         // Cast ray
 

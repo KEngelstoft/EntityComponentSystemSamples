@@ -2,6 +2,7 @@
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -194,12 +195,12 @@ namespace Unity.Physics
             AngularExpansionFactor = math.length(m_Size * 0.5f - ConvexRadius)
         };
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return CalculateAabb(RigidTransform.identity);
+            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
         }
 
-        public Aabb CalculateAabb(RigidTransform transform)
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
             float3 centerInB = math.transform(transform, m_Center);
 
@@ -209,11 +210,11 @@ namespace Unity.Physics
             float3 z = math.mul(worldFromBox, new float3(0, 0, m_Size.z * 0.5f));
             float3 halfExtentsInB = math.abs(x) + math.abs(y) + math.abs(z);
 
-            return new Aabb
-            {
-                Min = centerInB - halfExtentsInB,
-                Max = centerInB + halfExtentsInB
-            };
+            AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+            aabo.Add(centerInB - halfExtentsInB);
+            aabo.Add(centerInB + halfExtentsInB);
+
+            return aabo;
         }
 
         // Cast a ray against this collider.

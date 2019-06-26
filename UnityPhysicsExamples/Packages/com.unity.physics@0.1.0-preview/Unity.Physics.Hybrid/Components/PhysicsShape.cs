@@ -657,7 +657,7 @@ namespace Unity.Physics.Authoring
                 if (points.Length == 0)
                     return;
 
-                var bounds = new Bounds(points[0], float3.zero);
+                var bounds = new UnityEngine.Bounds(points[0], float3.zero);
                 for (int i = 1, count = points.Length; i < count; ++i)
                     bounds.Encapsulate(points[i]);
 

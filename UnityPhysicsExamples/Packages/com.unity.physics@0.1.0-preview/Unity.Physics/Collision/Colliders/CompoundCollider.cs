@@ -6,6 +6,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Entities;
 using static Unity.Physics.Math;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -137,7 +138,8 @@ namespace Unity.Physics
             for (int i = 0; i < NumChildren; ++i)
             {
                 points[i] = new BoundingVolumeHierarchy.PointAndIndex { Position = Children[i].CompoundFromChild.pos, Index = i };
-                aabbs[i] = Children[i].Collider->CalculateAabb(Children[i].CompoundFromChild);
+                AxisAlignedBoundingOctahedron aabo = Children[i].Collider->CalculateAxisAlignedBoundingOctahedron(Children[i].CompoundFromChild);
+                aabbs[i] = new Aabb(aabo);
             }
 
             // Build BVH
@@ -249,15 +251,16 @@ namespace Unity.Physics
         public CollisionFilter Filter { get => m_Header.Filter; set => m_Header.Filter = value; }
         public MassProperties MassProperties { get; private set; }
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return CalculateAabb(RigidTransform.identity);
+            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
         }
 
-        public unsafe Aabb CalculateAabb(RigidTransform transform)
+        public unsafe AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
-            // TODO: Store a convex hull wrapping all the children, and use that to calculate tighter AABBs?
-            return Math.TransformAabb(transform, BoundingVolumeHierarchy.Domain);
+            // TODO: Store a convex hull wrapping all the children, and use that to calculate tighter bounds?
+            Aabb aabb = Math.TransformAabb(transform, BoundingVolumeHierarchy.Domain);
+            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
         }
 
         // Cast a ray against this collider.

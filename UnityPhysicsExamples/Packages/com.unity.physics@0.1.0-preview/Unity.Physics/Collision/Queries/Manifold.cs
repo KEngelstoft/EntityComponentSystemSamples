@@ -323,7 +323,7 @@ namespace Unity.Physics
             MTransform bFromWorld = Inverse(worldFromB);
             MTransform bFromA = Mul(bFromWorld, worldFromA);
             var transform = new RigidTransform(new quaternion(bFromA.Rotation), bFromA.Translation); // TODO: avoid this conversion to and back from float3x3
-            Aabb aabbAinB = expansion.ExpandAabb(convexColliderA->CalculateAabb(transform));
+            Aabb aabbAinB = expansion.ExpandAabb(new Aabb(convexColliderA->CalculateAxisAlignedBoundingOctahedron(transform)));
 
             // Do the midphase query and build manifolds for any overlapping leaf colliders
             var input = new OverlapAabbInput { Aabb = aabbAinB, Filter = convexColliderA->Filter };

@@ -2,6 +2,7 @@
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Entities;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -77,23 +78,17 @@ namespace Unity.Physics
             AngularExpansionFactor = 0.0f
         };
 
-        public Aabb CalculateAabb()
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return new Aabb
-            {
-                Min = Center - new float3(Radius),
-                Max = Center + new float3(Radius)
-            };
+            float3 radius = new float3(Radius);
+            return new AxisAlignedBoundingOctahedron(Center - radius, Center + radius);
         }
 
-        public Aabb CalculateAabb(RigidTransform transform)
+        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
             float3 centerInWorld = math.transform(transform, Center);
-            return new Aabb
-            {
-                Min = centerInWorld - new float3(Radius),
-                Max = centerInWorld + new float3(Radius)
-            };
+            float3 radius = new float3(Radius);
+            return new AxisAlignedBoundingOctahedron(centerInWorld - radius, centerInWorld + radius);
         }
 
         // Cast a ray against this collider.

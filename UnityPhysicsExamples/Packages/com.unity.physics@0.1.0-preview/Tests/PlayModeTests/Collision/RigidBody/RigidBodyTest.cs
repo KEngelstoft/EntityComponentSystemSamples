@@ -19,9 +19,9 @@ namespace Unity.Physics.Tests.Collision.RigidBody
             const float convexRadius = 0.2f;
             rigidbodyBox.Collider = (Collider*)BoxCollider.Create(float3.zero, quaternion.identity, new float3(size), convexRadius).GetUnsafePtr();
 
-            var boxAabb = rigidbodyBox.CalculateAabb();
+            var boxAabb = rigidbodyBox.CalculateAxisAlignedBoundingOctahedron();
             var box = (BoxCollider*)BoxCollider.Create(float3.zero, quaternion.identity, new float3(size), convexRadius).GetUnsafePtr();
-            Assert.IsTrue(boxAabb.Equals(box->CalculateAabb()));
+            Assert.IsTrue(boxAabb.Equals(box->CalculateAxisAlignedBoundingOctahedron()));
         }
 
         [Test]
@@ -31,9 +31,9 @@ namespace Unity.Physics.Tests.Collision.RigidBody
             const float convexRadius = 1.0f;
             rigidbodySphere.Collider = (Collider*)SphereCollider.Create(float3.zero, convexRadius).GetUnsafePtr();
 
-            var sphereAabb = rigidbodySphere.CalculateAabb();
+            var sphereAabb = rigidbodySphere.CalculateAxisAlignedBoundingOctahedron();
             var sphere = (Collider*)SphereCollider.Create(float3.zero, convexRadius).GetUnsafePtr();
-            Assert.IsTrue(sphereAabb.Equals(sphere->CalculateAabb()));
+            Assert.IsTrue(sphereAabb.Equals(sphere->CalculateAxisAlignedBoundingOctahedron()));
         }
 
         [Test]

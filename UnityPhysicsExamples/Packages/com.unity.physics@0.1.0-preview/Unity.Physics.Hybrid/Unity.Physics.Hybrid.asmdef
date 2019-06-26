@@ -7,9 +7,9 @@
         "Unity.Entities.Hybrid",
         "Unity.Mathematics",
         "Unity.Physics",
-        "Unity.Transforms"
+        "Unity.Transforms",
+        "Unity.Bounds"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
