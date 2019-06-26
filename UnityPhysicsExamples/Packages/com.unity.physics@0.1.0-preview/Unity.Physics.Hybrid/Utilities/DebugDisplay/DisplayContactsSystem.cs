@@ -57,31 +57,31 @@ namespace Unity.Physics.Authoring
                 return inputDeps;
             }
 
-            SimulationCallbacks.Callback callback = (ref ISimulation simulation, ref PhysicsWorld world, JobHandle inDeps) =>
-            {
-                DebugStream.Context debugOutput = m_DebugStreamSystem.GetContext(1);
-                debugOutput.Begin(0);
-                // Allocate a NativeArray to store our debug output, so it can be shared across the display/finish jobs
-                NativeArray<DebugStream.Context> sharedOutput = new NativeArray<DebugStream.Context>(1, Allocator.TempJob);
-                sharedOutput[0] = debugOutput;
+            //SimulationCallbacks.Callback callback = (ref ISimulation simulation, ref PhysicsWorld world, JobHandle inDeps) =>
+            //{
+            //    DebugStream.Context debugOutput = m_DebugStreamSystem.GetContext(1);
+            //    debugOutput.Begin(0);
+            //    // Allocate a NativeArray to store our debug output, so it can be shared across the display/finish jobs
+            //    NativeArray<DebugStream.Context> sharedOutput = new NativeArray<DebugStream.Context>(1, Allocator.TempJob);
+            //    sharedOutput[0] = debugOutput;
 
-                var gatherJob = new DisplayContactsJob
-                {
-                    OutputStream = sharedOutput
-                };
+            //    var gatherJob = new DisplayContactsJob
+            //    {
+            //        OutputStream = sharedOutput
+            //    };
 
-                // Explicitly call ScheduleImpl here, to avoid a dependency on Havok.Physics
-                JobHandle gatherJobHandle = gatherJob.ScheduleImpl(simulation, ref world, inDeps);
+            //    // Explicitly call ScheduleImpl here, to avoid a dependency on Havok.Physics
+            //    JobHandle gatherJobHandle = gatherJob.ScheduleImpl(simulation, ref world, inDeps);
 
-                var finishJob = new FinishDisplayContactsJob
-                {
-                    OutputStream = sharedOutput
-                };
+            //    var finishJob = new FinishDisplayContactsJob
+            //    {
+            //        OutputStream = sharedOutput
+            //    };
 
-                return finishJob.Schedule(gatherJobHandle);
-            };
+            //    return finishJob.Schedule(gatherJobHandle);
+            //};
 
-            m_StepWorld.EnqueueCallback(SimulationCallbacks.Phase.PostCreateContacts, callback);
+            //m_StepWorld.EnqueueCallback(SimulationCallbacks.Phase.PostCreateContacts, callback);
 
 
             return inputDeps;

@@ -28,34 +28,34 @@ namespace Unity.Physics.Authoring
 
         protected unsafe override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            if (!(HasSingleton<PhysicsDebugDisplayData>() && GetSingleton<PhysicsDebugDisplayData>().DrawCollisionEvents != 0))
+            //if (!(HasSingleton<PhysicsDebugDisplayData>() && GetSingleton<PhysicsDebugDisplayData>().DrawCollisionEvents != 0))
             {
                 return inputDeps;
             }
 
-            inputDeps = JobHandle.CombineDependencies(inputDeps, m_BuildPhysicsWorldSystem.FinalJobHandle, m_StepPhysicsWorldSystem.FinalSimulationJobHandle);
+            //inputDeps = JobHandle.CombineDependencies(inputDeps, m_BuildPhysicsWorldSystem.FinalJobHandle, m_StepPhysicsWorldSystem.FinalSimulationJobHandle);
 
-            DebugStream.Context debugOutput = m_DebugStreamSystem.GetContext(1);
-            debugOutput.Begin(0);
-            // Allocate a NativeArray to store our debug output, so it can be shared across the display/finish jobs
-            NativeArray<DebugStream.Context> sharedOutput = new NativeArray<DebugStream.Context>(1, Allocator.TempJob);
-            sharedOutput[0] = debugOutput;
+            //DebugStream.Context debugOutput = m_DebugStreamSystem.GetContext(1);
+            //debugOutput.Begin(0);
+            //// Allocate a NativeArray to store our debug output, so it can be shared across the display/finish jobs
+            //NativeArray<DebugStream.Context> sharedOutput = new NativeArray<DebugStream.Context>(1, Allocator.TempJob);
+            //sharedOutput[0] = debugOutput;
 
-            // Explicitly call ScheduleImpl here, to avoid a dependency on Havok.Physics
-            JobHandle handle = new DisplayCollisionEventsJob
-            {
-                World = m_BuildPhysicsWorldSystem.PhysicsWorld,
-                OutputStream = sharedOutput
-            }.ScheduleImpl(m_StepPhysicsWorldSystem.Simulation, ref m_BuildPhysicsWorldSystem.PhysicsWorld, inputDeps);
+            //// Explicitly call ScheduleImpl here, to avoid a dependency on Havok.Physics
+            //JobHandle handle = new DisplayCollisionEventsJob
+            //{
+            //    World = m_BuildPhysicsWorldSystem.PhysicsWorld,
+            //    OutputStream = sharedOutput
+            //}.ScheduleImpl(m_StepPhysicsWorldSystem.Simulation, ref m_BuildPhysicsWorldSystem.PhysicsWorld, inputDeps);
 
-            JobHandle finishHandle = new FinishDisplayCollisionEventsJob
-            {
-                OutputStream = sharedOutput
-            }.Schedule(handle);
+            //JobHandle finishHandle = new FinishDisplayCollisionEventsJob
+            //{
+            //    OutputStream = sharedOutput
+            //}.Schedule(handle);
 
-            m_EndFramePhysicsSystem.HandlesToWaitFor.Add(finishHandle);
+            //m_EndFramePhysicsSystem.HandlesToWaitFor.Add(finishHandle);
 
-            return handle;
+            //return handle;
         }
 
         // Job which iterates over collision events and writes display info to a DebugStream.
