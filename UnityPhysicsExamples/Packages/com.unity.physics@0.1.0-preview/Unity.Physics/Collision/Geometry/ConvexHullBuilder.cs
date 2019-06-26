@@ -975,17 +975,17 @@ namespace Unity.Physics
                 planes.Add(ComputePlane(triangleIndex));
             }
 
-            Aabb actualAabb = ComputeAabb();
+            AxisAlignedBoundingOctahedron actualAabo = ComputeAabo();
 
             Reset(true);
-            AddPoint(math.select(actualAabb.Min, actualAabb.Max, new bool3(false, false, false)));
-            AddPoint(math.select(actualAabb.Min, actualAabb.Max, new bool3(true, false, false)));
-            AddPoint(math.select(actualAabb.Min, actualAabb.Max, new bool3(true, true, false)));
-            AddPoint(math.select(actualAabb.Min, actualAabb.Max, new bool3(false, true, false)));
-            AddPoint(math.select(actualAabb.Min, actualAabb.Max, new bool3(false, false, true)));
-            AddPoint(math.select(actualAabb.Min, actualAabb.Max, new bool3(true, false, true)));
-            AddPoint(math.select(actualAabb.Min, actualAabb.Max, new bool3(true, true, true)));
-            AddPoint(math.select(actualAabb.Min, actualAabb.Max, new bool3(false, true, true)));
+            AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(false, false, false)));
+            AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(true, false, false)));
+            AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(true, true, false)));
+            AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(false, true, false)));
+            AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(false, false, true)));
+            AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(true, false, true)));
+            AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(true, true, true)));
+            AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(false, true, true)));
 
             BuildFaceIndices();
 
@@ -1431,16 +1431,17 @@ namespace Unity.Physics
         }
 
         /// <summary>
-        /// Returns the AABB of the convex hull.
+        /// Returns the bounds of the convex hull.
         /// </summary>
-        public Aabb ComputeAabb()
+        public AxisAlignedBoundingOctahedron ComputeAabo()
         {
-            Aabb aabb = Aabb.Empty;
+            AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+            aabo.Reset();
             foreach (Vertex vertex in Vertices.Elements)
             {
-                aabb.Include(vertex.Position);
+                aabo.Add(vertex.Position);
             }
-            return aabb;
+            return aabo;
         }
 
         /// <summary>
