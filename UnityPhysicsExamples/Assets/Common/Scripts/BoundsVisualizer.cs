@@ -42,30 +42,30 @@ public class BoundsVisualizer : MonoBehaviour
             switch (boundsType)
             {
                 case HullType.Octahedral:
-                    var aabo = new AxisAlignedBoundingOctahedron();
-                    aabo.Reset();
+                    var shape = new AxisAlignedBoundingHexagonalPrism();
+                    shape.Reset();
 
                     foreach (Vector3 v in sharedMeshVertices)
                     {
-                        aabo.Add(transform.TransformPoint(v));
+                        shape.Add(transform.TransformPoint(v));
                     }
 
-                    var aaboMesh = AaboUtils.GenerateMesh(aabo);
-                    var numLines = aaboMesh.indices.Length/2;
+                    var mesh = Utils.GenerateMesh(shape);
+                    var numLines = mesh.indices.Length/2;
 
                     Gizmos.color = yellow;
                     for (int i = 0; i < numLines; ++i)
                     {
-                        var idx0 = aaboMesh.indices[i * 2 + 0];
-                        var idx1 = aaboMesh.indices[i * 2 + 1];
+                        var idx0 = mesh.indices[i * 2 + 0];
+                        var idx1 = mesh.indices[i * 2 + 1];
 
-                        Vector3 from = aaboMesh.vertices[idx0];
-                        Vector3 to = aaboMesh.vertices[idx1];
+                        Vector3 from = mesh.vertices[idx0];
+                        Vector3 to = mesh.vertices[idx1];
 
                         Gizmos.DrawLine(from, to);
                     }
 
-                    aaboMesh.Dispose();
+                    mesh.Dispose();
                     break;
                 case HullType.AABB:
                     AABB1 aabb = new AABB1();
