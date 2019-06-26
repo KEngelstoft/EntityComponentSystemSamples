@@ -38,21 +38,17 @@ public class BoundsVisualizer : MonoBehaviour
             Color32 red = new Color32(255, 0, 0, 255);
             Color32 blue = new Color32(0, 0, 255, 255);
             Color32 yellow = new Color32(255, 255, 0, 255);
-            Gizmos.color = red;
             //Unity.Bounds.Mesh mesh = new Unity.Bounds.Mesh();
             switch (boundsType)
             {
                 case HullType.Octahedral:
-                    AxisAlignedBoundingOctahedron aabo = AxisAlignedBoundingOctahedron.Reset();
+                    var aabo = new AxisAlignedBoundingOctahedron();
+                    aabo.Reset();
+
                     foreach (Vector3 v in sharedMeshVertices)
                     {
-                        Gizmos.DrawWireSphere(transform.TransformPoint(v), 0.1f);
-                        aabo = AaboUtils.Expand(aabo, transform.TransformPoint(v));
+                        aabo.Add(transform.TransformPoint(v));
                     }
-
-                    Gizmos.color = blue;
-
-                    Gizmos.DrawWireSphere(aabo.Center.xyz, 0.1f);
 
                     var aaboMesh = AaboUtils.GenerateMesh(aabo);
                     var numLines = aaboMesh.indices.Length/2;
