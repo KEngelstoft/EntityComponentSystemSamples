@@ -25,15 +25,15 @@ namespace Unity.Physics
         public Plane ProjectionPlane { get; private set; }
 
         private IntegerSpace m_IntegerSpace;
-        private Aabb m_IntegerSpaceAabb;
+        private AxisAlignedBoundingOctahedron m_IntegerSpaceAabo;
 
         private uint m_NextUid;
 
         public AxisAlignedBoundingOctahedron IntegerSpaceAabo
         {
-            get => new AxisAlignedBoundingOctahedron (m_IntegerSpaceAabb.Min, m_IntegerSpaceAabb.Max);
+            get => m_IntegerSpaceAabo;
             set {
-                m_IntegerSpaceAabb = new Aabb(value.CircumscribedAABB);
+                m_IntegerSpaceAabo = value;
                 UpdateIntSpace();
             }
         }
@@ -178,17 +178,17 @@ namespace Unity.Physics
             public readonly float3 Scale;
             public readonly float3 InvScale;
 
-            public IntegerSpace(Aabb aabb, int resolution, bool uniform, float minExtent)
+            public IntegerSpace(AxisAlignedBoundingOctahedron aabo, int resolution, bool uniform, float minExtent)
             {
                 if (uniform)
                 {
-                    float3 c = aabb.Center;
-                    var m = new float3(math.cmax(aabb.Max - c));
-                    aabb.Min = c - m;
-                    aabb.Max = c + m;
+                    float4 c = aabo.Center;
+                    var m = new float4(math.cmax(aabo.Max - c));
+                    aabo.Min = c - m;
+                    aabo.Max = c + m;
                 }
-                float3 extents = math.max(minExtent, (aabb.Max - aabb.Min));
-                Offset = aabb.Min;
+                float3 extents = math.max(minExtent, (aabo.Max - aabo.Min)).xyz;
+                Offset = aabo.Min.xyz;
                 Scale = extents / resolution;
                 InvScale = math.select(resolution / extents, new float3(0), Scale <= 0);
             }
@@ -211,7 +211,8 @@ namespace Unity.Physics
             NumFaces = 0;
             NumFaceVertices = 0;
             m_NextUid = 1;
-            m_IntegerSpaceAabb = Aabb.Empty;
+            m_IntegerSpaceAabo = new AxisAlignedBoundingOctahedron();
+            m_IntegerSpaceAabo.Reset();
             m_IntegerSpace = new IntegerSpace();
             ProjectionPlane = new Plane(new float3(0), 0);
         }
@@ -228,7 +229,8 @@ namespace Unity.Physics
             NumFaceVertices = 0;
             ProjectionPlane = new Plane(new float3(0), 0);
             m_NextUid = 1;
-            m_IntegerSpaceAabb = Aabb.Empty;
+            m_IntegerSpaceAabo = new AxisAlignedBoundingOctahedron();
+            m_IntegerSpaceAabo.Reset();
             m_IntegerSpace = new IntegerSpace();
         }
 
@@ -243,7 +245,7 @@ namespace Unity.Physics
             NumFaces = other.NumFaces;
             NumFaceVertices = other.NumFaceVertices;
             ProjectionPlane = other.ProjectionPlane;
-            m_IntegerSpaceAabb = other.m_IntegerSpaceAabb;
+            m_IntegerSpaceAabo = other.m_IntegerSpaceAabo;
             m_IntegerSpace = other.m_IntegerSpace;
             m_NextUid = other.m_NextUid;
         }
@@ -263,7 +265,7 @@ namespace Unity.Physics
         /// <summary>
         /// Reset the convex hull.
         /// </summary>
-        public void Reset(bool keepIntegerSpaceAabb = false)
+        public void Reset(bool keepIntegerSpaceAabo = false)
         {
             Vertices.Clear();
             Triangles.Clear();
@@ -271,9 +273,9 @@ namespace Unity.Physics
             NumFaces = 0;
             NumFaceVertices = 0;
             ProjectionPlane = new Plane(new float3(0), 0);
-            if (!keepIntegerSpaceAabb)
+            if (!keepIntegerSpaceAabo)
             {
-                m_IntegerSpaceAabb = Aabb.Empty;
+                m_IntegerSpaceAabo.Reset();
                 m_IntegerSpace = new IntegerSpace();
             }
         }
@@ -295,9 +297,9 @@ namespace Unity.Physics
 
             // Update integer space.
             bool intSpaceUpdated = false;
-            if (!m_IntegerSpaceAabb.Contains(point))
+            if (!m_IntegerSpaceAabo.Contains(point))
             {
-                m_IntegerSpaceAabb.Include(point);
+                m_IntegerSpaceAabo.Add(point);
                 UpdateIntSpace();
                 intSpaceUpdated = true;
             }
@@ -923,7 +925,7 @@ namespace Unity.Physics
                     }
 
                     // Rebuild convex hull.
-                    Reset(keepIntegerSpaceAabb: true);
+                    Reset(keepIntegerSpaceAabo: true);
                     for (int i = 0; i < newPoints.Count; ++i)
                     {
                         if (newPoints[i].Data.w > 0)
@@ -1171,7 +1173,7 @@ namespace Unity.Physics
 
         private int AllocateVertex(float3 point, uint userData)
         {
-            Assert.IsTrue(m_IntegerSpaceAabb.Contains(point));
+            Assert.IsTrue(m_IntegerSpaceAabo.Contains(point));
             var vertex = new Vertex(point, userData, m_NextUid++) { IntPosition = m_IntegerSpace.ToIntegerSpace(point) };
             return Vertices.Allocate(vertex);
         }
@@ -1224,7 +1226,7 @@ namespace Unity.Physics
         {
             const int quantizationBits = 16;
             const float minExtent = 1e-5f;
-            m_IntegerSpace = new IntegerSpace(m_IntegerSpaceAabb, (1 << quantizationBits) - 1, true, minExtent);
+            m_IntegerSpace = new IntegerSpace(m_IntegerSpaceAabo, (1 << quantizationBits) - 1, true, minExtent);
             foreach (int i in Vertices.Indices)
             {
                 Vertex v = Vertices[i];
