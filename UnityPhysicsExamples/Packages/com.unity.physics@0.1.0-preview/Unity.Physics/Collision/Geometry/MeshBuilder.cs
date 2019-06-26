@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -847,14 +848,20 @@ namespace Unity.Physics
                     vis[3] = GetApexVertexIndex(indices, linkEdge);
 
                     float3x4 quadVertices = new float3x4(vertices[vis[0]], vertices[vis[1]], vertices[vis[2]], vertices[vis[3]]);
-                    Aabb quadAabb = Aabb.CreateFromPoints(quadVertices);
+                    
+                    AxisAlignedBoundingOctahedron quadAabo = new AxisAlignedBoundingOctahedron();
+                    quadAabo.Reset();
+                    quadAabo.Add(vertices[vis[0]]);
+                    quadAabo.Add(vertices[vis[1]]);
+                    quadAabo.Add(vertices[vis[2]]);
+                    quadAabo.Add(vertices[vis[3]]);
 
-                    float aabbSurfaceArea = quadAabb.SurfaceArea;
+                    float aaboSurfaceArea = quadAabo.SurfaceArea;
 
-                    if (aabbSurfaceArea > Math.Constants.Eps)
+                    if (aaboSurfaceArea > Math.Constants.Eps)
                     {
                         float quadSurfaceArea = CalcTwiceSurfaceArea(quadVertices[0], quadVertices[1], quadVertices[2]) + CalcTwiceSurfaceArea(quadVertices[0], quadVertices[1], quadVertices[3]);
-                        edgeData.Value = (aabbSurfaceArea - quadSurfaceArea) / aabbSurfaceArea;
+                        edgeData.Value = (aaboSurfaceArea - quadSurfaceArea) / aaboSurfaceArea;
                         edgeData.Edge = vis[0] < vis[1] ? e : linkEdge;
                     }
                 }
