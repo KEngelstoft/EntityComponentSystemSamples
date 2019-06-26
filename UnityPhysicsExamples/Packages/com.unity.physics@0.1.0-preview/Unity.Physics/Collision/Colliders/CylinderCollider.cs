@@ -218,8 +218,8 @@ namespace Unity.Physics
         {
             transform = math.mul(transform, new RigidTransform(m_Orientation, m_Center));
             float3 axis = math.rotate(transform, new float3(0, 0, 1));
-            float3 v0 = transform.pos + axis * m_Height * 0.5f;
-            float3 v1 = transform.pos - axis * m_Height * 0.5f;
+            float3 v0 = transform.pos + axis * m_Height * 0.25f;
+            float3 v1 = transform.pos - axis * m_Height * 0.25f;
             float3 e = m_Radius;
             return new AxisAlignedBoundingOctahedron(math.min(v0, v1) - e, math.max(v0, v1) + e);
         }

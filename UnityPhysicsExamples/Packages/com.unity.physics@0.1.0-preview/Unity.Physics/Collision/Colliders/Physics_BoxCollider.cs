@@ -211,6 +211,7 @@ namespace Unity.Physics
             float3 halfExtentsInB = math.abs(x) + math.abs(y) + math.abs(z);
 
             AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+            aabo.Reset();
             aabo.Add(centerInB - halfExtentsInB);
             aabo.Add(centerInB + halfExtentsInB);
 
