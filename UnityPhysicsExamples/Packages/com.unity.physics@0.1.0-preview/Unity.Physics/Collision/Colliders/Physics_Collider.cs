@@ -287,7 +287,9 @@ namespace Unity.Physics
                         return ((CompoundCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
                     default:
                         //Assert.IsTrue(Enum.IsDefined(typeof(ColliderType), collider->Type));
-                        return new AxisAlignedBoundingOctahedron(Aabb.Empty.Min, Aabb.Empty.Max);
+                        AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+                        aabo.Reset();
+                        return aabo;
                 }
             }
         }

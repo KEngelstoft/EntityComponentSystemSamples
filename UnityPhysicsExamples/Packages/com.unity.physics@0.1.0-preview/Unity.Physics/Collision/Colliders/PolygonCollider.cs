@@ -219,12 +219,8 @@ namespace Unity.Physics
         {
             float3 min = math.min(math.min(ConvexHull.Vertices[0], ConvexHull.Vertices[1]), math.min(ConvexHull.Vertices[2], ConvexHull.Vertices[3]));
             float3 max = math.max(math.max(ConvexHull.Vertices[0], ConvexHull.Vertices[1]), math.max(ConvexHull.Vertices[2], ConvexHull.Vertices[3]));
-            Aabb aabb = new Aabb
-            {
-                Min = min - new float3(ConvexHull.ConvexRadius),
-                Max = max + new float3(ConvexHull.ConvexRadius)
-            };
-            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+            float3 radius = new float3(ConvexHull.ConvexRadius);
+            return new AxisAlignedBoundingOctahedron(min - radius, max + radius);
         }
 
         public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
@@ -236,12 +232,8 @@ namespace Unity.Physics
 
             float3 min = math.min(math.min(v0, v1), math.min(v2, v3));
             float3 max = math.max(math.max(v0, v1), math.max(v2, v3));
-            Aabb aabb = new Aabb
-            {
-                Min = min + transform.pos - new float3(ConvexHull.ConvexRadius),
-                Max = max + transform.pos + new float3(ConvexHull.ConvexRadius)
-            };
-            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+            float3 radius = new float3(ConvexHull.ConvexRadius);
+            return new AxisAlignedBoundingOctahedron(min + transform.pos - radius, max + transform.pos + radius);
         }
 
         // Cast a ray against this collider.

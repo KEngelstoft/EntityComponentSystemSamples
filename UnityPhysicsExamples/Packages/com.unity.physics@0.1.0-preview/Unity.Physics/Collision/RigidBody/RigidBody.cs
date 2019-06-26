@@ -37,8 +37,7 @@ namespace Unity.Physics
             {
                 return Collider->CalculateAxisAlignedBoundingOctahedron(WorldFromBody);
             }
-            Aabb aabb = new Aabb { Min = WorldFromBody.pos, Max = WorldFromBody.pos };
-            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+            return new AxisAlignedBoundingOctahedron(WorldFromBody.pos, WorldFromBody.pos);
         }
 
         public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
@@ -47,8 +46,7 @@ namespace Unity.Physics
             {
                 return Collider->CalculateAxisAlignedBoundingOctahedron(math.mul(transform, WorldFromBody));
             }
-            Aabb aabb = new Aabb { Min = WorldFromBody.pos, Max = WorldFromBody.pos };
-            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+            return new AxisAlignedBoundingOctahedron(WorldFromBody.pos, WorldFromBody.pos);
         }
 
         public bool CastRay(RaycastInput input) => QueryWrappers.RayCast(ref this, input);

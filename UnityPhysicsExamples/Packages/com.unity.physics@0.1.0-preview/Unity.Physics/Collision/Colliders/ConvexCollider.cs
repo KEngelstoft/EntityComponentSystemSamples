@@ -317,12 +317,8 @@ namespace Unity.Physics
                 min = math.min(min, v);
                 max = math.max(max, v);
             }
-            Aabb aabb = new Aabb
-            {
-                Min = min + transform.pos - new float3(ConvexHull.ConvexRadius),
-                Max = max + transform.pos + new float3(ConvexHull.ConvexRadius)
-            };
-            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+            float3 radius = new float3(ConvexHull.ConvexRadius);
+            return new AxisAlignedBoundingOctahedron(min + transform.pos - radius, max + transform.pos + radius);
         }
 
         // Cast a ray against this collider.
