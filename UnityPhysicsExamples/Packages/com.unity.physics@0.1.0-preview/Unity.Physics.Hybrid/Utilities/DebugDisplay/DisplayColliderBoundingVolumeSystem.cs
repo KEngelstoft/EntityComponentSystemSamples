@@ -11,7 +11,7 @@ namespace Unity.Physics.Authoring
     /// Job to iterate over all the bodies in a scene, for any
     /// which have a collider, calculate the bounding box and
     /// write it to a debug stream.
-    public unsafe struct DisplayColliderAabbsJob : IJob //<todo.eoin.udebug This can be a parallelfor job
+    public unsafe struct DisplayColliderAabosJob : IJob //<todo.eoin.udebug This can be a parallelfor job
     {
         public DebugStream.Context OutputStream;
         [ReadOnly] public NativeSlice<RigidBody> Bodies;
@@ -24,10 +24,7 @@ namespace Unity.Physics.Authoring
             {
                 if (Bodies[b].Collider != null)
                 {
-                    Aabb aabb = new Aabb(Bodies[b].Collider->CalculateAxisAlignedBoundingOctahedron(Bodies[b].WorldFromBody));
-
-                    float3 center = aabb.Center;
-                    OutputStream.Box(aabb.Extents, center, Quaternion.identity, new Color(0.7f, 0.125f, 0.125f));
+                    OutputStream.Octahedron(Bodies[b].Collider->CalculateAxisAlignedBoundingOctahedron(Bodies[b].WorldFromBody), Color.blue);
                 }
             }
             OutputStream.End();
@@ -36,7 +33,7 @@ namespace Unity.Physics.Authoring
 
     /// Create a DisplayColliderAabbsJob
     [UpdateAfter(typeof(BuildPhysicsWorld)), UpdateBefore(typeof(EndFramePhysicsSystem))]
-    public class DisplayColliderAabbsSystem : JobComponentSystem
+    public class DisplayColliderAabosSystem : JobComponentSystem
     {
         BuildPhysicsWorld m_BuildPhysicsWorldSystem;
         StepPhysicsWorld m_StepPhysicsWorld;
@@ -51,7 +48,7 @@ namespace Unity.Physics.Authoring
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            if (!(HasSingleton<PhysicsDebugDisplayData>() && GetSingleton<PhysicsDebugDisplayData>().DrawColliderAabbs != 0))
+            if (!(HasSingleton<PhysicsDebugDisplayData>() && GetSingleton<PhysicsDebugDisplayData>().DrawColliderAabos != 0))
             {
                 return inputDeps;
             }
@@ -63,7 +60,7 @@ namespace Unity.Physics.Authoring
 
             SimulationCallbacks.Callback callback = (ref ISimulation simulation, ref PhysicsWorld world, JobHandle deps) =>
             {
-                return new DisplayColliderAabbsJob
+                return new DisplayColliderAabosJob
                 {
                     OutputStream = m_DebugStreamSystem.GetContext(1),
                     Bodies = m_BuildPhysicsWorldSystem.PhysicsWorld.Bodies

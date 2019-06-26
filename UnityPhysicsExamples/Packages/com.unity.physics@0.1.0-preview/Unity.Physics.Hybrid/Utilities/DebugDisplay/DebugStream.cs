@@ -6,6 +6,7 @@ using Unity.Physics;
 using Unity.Physics.Systems;
 using UnityEditor;
 using UnityEngine;
+using Unity.Bounds;
 
 [UpdateBefore(typeof(BuildPhysicsWorld))]
 public class DebugStream : ComponentSystem
@@ -70,6 +71,12 @@ public class DebugStream : ComponentSystem
             Writer.Write(new Box { Size = size, Center = center, Orientation = orientation, Color = color });
         }
 
+        public void Octahedron(AxisAlignedBoundingOctahedron aabo, Color color)
+        {
+            Writer.Write(Type.Octahedron);
+            Writer.Write(new Octahedron { Aabo = aabo, Color = color });
+        }
+
         public void Text(char[] text, float3 x, Color color)
         {
             Writer.Write(Type.Text);
@@ -102,7 +109,8 @@ public class DebugStream : ComponentSystem
         Arc,
         Cone,
         Text,
-        Box
+        Box,
+        Octahedron
     }
 
     public struct Point
@@ -302,6 +310,32 @@ public class DebugStream : ComponentSystem
         }
     }
 
+    struct Octahedron
+    {
+        public AxisAlignedBoundingOctahedron Aabo;
+        public Color Color;
+
+        public void Draw()
+        {
+#if UNITY_EDITOR
+            var aaboMesh = Utils.GenerateMesh(Aabo);
+            var numLines = aaboMesh.indices.Length / 2;
+
+            Handles.color = Color;
+            for (int i = 0; i < numLines; ++i)
+            {
+                var idx0 = aaboMesh.indices[i * 2 + 0];
+                var idx1 = aaboMesh.indices[i * 2 + 1];
+
+                Vector3 from = aaboMesh.vertices[idx0];
+                Vector3 to = aaboMesh.vertices[idx1];
+                Handles.DrawLine(from, to);
+            }
+
+            aaboMesh.Dispose();
+#endif
+        }
+    }
     struct Text
     {
         public float3 X;
@@ -346,6 +380,7 @@ public class DebugStream : ComponentSystem
                         case Type.Cone: reader.Read<Cone>().Draw(); break;
                         case Type.Text: reader.Read<Text>().Draw(ref reader); break;
                         case Type.Box: reader.Read<Box>().Draw(); break;
+                        case Type.Octahedron: reader.Read<Octahedron>().Draw(); break;
                         default: return; // unknown type
                     }
                 }

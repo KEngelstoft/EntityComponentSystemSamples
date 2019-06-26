@@ -7,7 +7,7 @@ namespace Unity.Physics.Authoring
     {
         public int DrawColliders;
         public int DrawColliderEdges;
-        public int DrawColliderAabbs;
+        public int DrawColliderAabos;
         public int DrawBroadphase;
         public int DrawMassProperties;
         public int DrawContacts;
@@ -23,7 +23,7 @@ namespace Unity.Physics.Authoring
     {
         public bool DrawColliders = false;
         public bool DrawColliderEdges = false;
-        public bool DrawColliderAabbs = false;
+        public bool DrawColliderAabos = false;
         public bool DrawBroadphase = false;
         public bool DrawMassProperties = false;
         public bool DrawContacts = false;
@@ -39,7 +39,7 @@ namespace Unity.Physics.Authoring
             {
                 DrawColliders = DrawColliders ? 1 : 0,
                 DrawColliderEdges = DrawColliderEdges ? 1 : 0,
-                DrawColliderAabbs = DrawColliderAabbs ? 1 : 0,
+                DrawColliderAabos = DrawColliderAabos ? 1 : 0,
                 DrawBroadphase = DrawBroadphase ? 1 : 0,
                 DrawMassProperties = DrawMassProperties ? 1 : 0,
                 DrawContacts = DrawContacts ? 1 : 0,
@@ -64,7 +64,7 @@ namespace Unity.Physics.Authoring
                 var component = entityManager.GetComponentData<PhysicsDebugDisplayData>(convertedEntity);
                 component.DrawColliders = DrawColliders ? 1 : 0;
                 component.DrawColliderEdges = DrawColliderEdges ? 1 : 0;
-                component.DrawColliderAabbs = DrawColliderAabbs ? 1 : 0;
+                component.DrawColliderAabos = DrawColliderAabos ? 1 : 0;
                 component.DrawBroadphase = DrawBroadphase ? 1 : 0;
                 component.DrawMassProperties = DrawMassProperties ? 1 : 0;
                 component.DrawContacts = DrawContacts ? 1 : 0;
