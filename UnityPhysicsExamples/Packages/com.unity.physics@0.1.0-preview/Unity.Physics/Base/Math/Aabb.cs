@@ -21,14 +21,14 @@ namespace Unity.Physics
         public Aabb(Unity.Bounds.AxisAlignedBoundingOctahedron aabo)
         {
             Unity.Bounds.AxisAlignedBoundingBox aabb = aabo.CircumscribedAABB;
-            Min = aabb.min;
-            Max = aabb.max;
+            Min = aabb.Min;
+            Max = aabb.Max;
         }
 
         public Aabb(Unity.Bounds.AxisAlignedBoundingBox aabb)
         {
-            Min = aabb.min;
-            Max = aabb.max;
+            Min = aabb.Min;
+            Max = aabb.Max;
         }
 
         // Create an empty, invalid AABB
