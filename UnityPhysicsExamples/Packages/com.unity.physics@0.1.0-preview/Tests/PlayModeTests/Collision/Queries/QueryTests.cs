@@ -79,7 +79,7 @@ namespace Unity.Physics.Tests.Collision.Queries
                         aabb.Include(vertexA - vertexB);
                     }
                 }
-                diff.IntegerSpaceAabb = aabb;
+                diff.IntegerSpaceAabo = new Bounds.AxisAlignedBoundingOctahedron(aabb.Min,aabb.Max);
                 success = true;
                 for (int iB = 0; iB < b.NumVertices; iB++)
                 {

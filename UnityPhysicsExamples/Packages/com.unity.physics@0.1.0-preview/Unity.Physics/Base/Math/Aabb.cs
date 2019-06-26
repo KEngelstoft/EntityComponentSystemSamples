@@ -24,6 +24,12 @@ namespace Unity.Physics
             Max = aabb.max;
         }
 
+        public Aabb(Unity.Bounds.AxisAlignedBoundingBox aabb)
+        {
+            Min = aabb.min;
+            Max = aabb.max;
+        }
+
         // Create an empty, invalid AABB
         public static readonly Aabb Empty = new Aabb { Min = Math.Constants.Max3F, Max = Math.Constants.Min3F };
 

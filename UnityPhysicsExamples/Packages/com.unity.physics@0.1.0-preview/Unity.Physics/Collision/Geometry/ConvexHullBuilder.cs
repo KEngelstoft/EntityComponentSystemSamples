@@ -7,6 +7,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine.Assertions;
 using static Unity.Physics.Math;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -25,12 +26,16 @@ namespace Unity.Physics
 
         private IntegerSpace m_IntegerSpace;
         private Aabb m_IntegerSpaceAabb;
+
         private uint m_NextUid;
 
-        public Aabb IntegerSpaceAabb
+        public AxisAlignedBoundingOctahedron IntegerSpaceAabo
         {
-            get => m_IntegerSpaceAabb;
-            set { m_IntegerSpaceAabb = value; UpdateIntSpace(); }
+            get => new AxisAlignedBoundingOctahedron (m_IntegerSpaceAabb.Min, m_IntegerSpaceAabb.Max);
+            set {
+                m_IntegerSpaceAabb = new Aabb(value.CircumscribedAABB);
+                UpdateIntSpace();
+            }
         }
 
         /// <summary>
@@ -1093,8 +1098,8 @@ namespace Unity.Physics
         {
             negHull = new ConvexHullBuilder(Vertices.PeakCount * 2, Vertices.PeakCount * 4);
             posHull = new ConvexHullBuilder(Vertices.PeakCount * 2, Vertices.PeakCount * 4);
-            negHull.IntegerSpaceAabb = IntegerSpaceAabb;
-            posHull.IntegerSpaceAabb = IntegerSpaceAabb;
+            negHull.IntegerSpaceAabo = IntegerSpaceAabo;
+            posHull.IntegerSpaceAabo = IntegerSpaceAabo;
 
             // Compute vertices signed distance to plane and add them to the hull they belong too.
             const float minD2P = 1e-6f;

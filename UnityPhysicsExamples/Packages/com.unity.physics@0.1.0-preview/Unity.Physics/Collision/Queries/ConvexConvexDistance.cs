@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using static Unity.Physics.Math;
 using Debug = UnityEngine.Debug;
 using UnityEngine.Assertions;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -275,7 +276,8 @@ namespace Unity.Physics
                 // Initialize int space
                 // TODO - either the hull should be robust when int space changes after points are already added, or the ability to do so should be removed, probably the latter
                 // Currently for example a valid triangle can collapse to a line segment when the bounds grow
-                hull.IntegerSpaceAabb = GetSupportingAabb(verticesA, numVerticesA, verticesB, numVerticesB, aFromB);
+                Aabb aabb = GetSupportingAabb(verticesA, numVerticesA, verticesB, numVerticesB, aFromB);
+                hull.IntegerSpaceAabo = new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
 
                 // Add simplex vertices to the hull, remove any vertices from the simplex that do not increase the hull dimension
                 hull.AddPoint(simplex.A.Xyz, simplex.A.Id);

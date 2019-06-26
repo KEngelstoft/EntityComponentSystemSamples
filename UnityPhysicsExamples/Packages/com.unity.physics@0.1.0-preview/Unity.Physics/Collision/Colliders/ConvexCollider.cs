@@ -53,7 +53,7 @@ namespace Unity.Physics
             }
 
             // Add points to the hull
-            builder.IntegerSpaceAabb = new Aabb(domain);
+            builder.IntegerSpaceAabo = domain;
             foreach (float3 point in points)
             {
                 builder.AddPoint(point * s);

@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using static Unity.Physics.Math;
 using Debug = UnityEngine.Debug;
+using Unity.Bounds;
 
 namespace Unity.Physics.Tests.Collision.Queries
 {
@@ -813,7 +814,7 @@ namespace Unity.Physics.Tests.Collision.Queries
                 {
                     aabb.Include(vertices[i]);
                 }
-                cvx.Hull.IntegerSpaceAabb = aabb;
+                cvx.Hull.IntegerSpaceAabo = new AxisAlignedBoundingOctahedron(aabb.Min,aabb.Max);
 
                 for (int i = 0; i < vertices.Length; ++i)
                 {
