@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -118,6 +119,23 @@ namespace Unity.Physics
                 Min = centerInB - halfExtentsInB,
                 Max = centerInB + halfExtentsInB
             };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AxisAlignedBoundingOctahedron TransformAabo(RigidTransform transform, AxisAlignedBoundingOctahedron aabo)
+        {
+            float4 halfExtentsInA = aabo.Size * 0.5f;
+            float3 x = math.rotate(transform.rot, new float3(halfExtentsInA.x, 0, 0));
+            float3 y = math.rotate(transform.rot, new float3(0, halfExtentsInA.y, 0));
+            float3 z = math.rotate(transform.rot, new float3(0, 0, halfExtentsInA.z));
+
+            float3 halfExtentsInB = math.abs(x) + math.abs(y) + math.abs(z);
+            float3 center = new float3(aabo.Center.x, aabo.Center.y, aabo.Center.z);
+            float3 centerInB = math.transform(transform, center);
+
+            var Min = centerInB - halfExtentsInB;
+            var Max = centerInB + halfExtentsInB;
+            return new AxisAlignedBoundingOctahedron(Min, Max);
         }
 
         // Transform an AABB into another space, expanding it as needed.

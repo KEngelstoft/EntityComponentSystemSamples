@@ -15,7 +15,7 @@ namespace Unity.Physics
     public struct MeshCollider : ICompositeCollider
     {
         private ColliderHeader m_Header;
-        private Aabb m_Aabb;
+        private AxisAlignedBoundingOctahedron m_Aabo;
         public Mesh Mesh;
 
         // followed by variable sized mesh data
@@ -119,7 +119,8 @@ namespace Unity.Physics
                     }
                 }
 
-                meshCollider->m_Aabb = meshCollider->Mesh.BoundingVolumeHierarchy.Domain;
+                var domain = meshCollider->Mesh.BoundingVolumeHierarchy.Domain;
+                meshCollider->m_Aabo = new AxisAlignedBoundingOctahedron(domain.Min,domain.Max);
                 meshCollider->NumColliderKeyBits = meshCollider->Mesh.NumColliderKeyBits;
             }
 
@@ -145,34 +146,34 @@ namespace Unity.Physics
         {
             get
             {
-                // Rough approximation based on AABB
-                float3 size = m_Aabb.Extents;
+                // Rough approximation based on Bounds
+                float4 size = m_Aabo.Size;
+                float3 center = new float3(m_Aabo.Center.x, m_Aabo.Center.y, m_Aabo.Center.z);
                 return new MassProperties
                 {
                     MassDistribution = new MassDistribution
                     {
-                        Transform = new RigidTransform(quaternion.identity, m_Aabb.Center),
+                        Transform = new RigidTransform(quaternion.identity, center),
                         InertiaTensor = new float3(
                             (size.y * size.y + size.z * size.z) / 12.0f,
                             (size.x * size.x + size.z * size.z) / 12.0f,
                             (size.x * size.x + size.y * size.y) / 12.0f)
                     },
                     Volume = 0,
-                    AngularExpansionFactor = math.length(m_Aabb.Extents) * 0.5f
+                    AngularExpansionFactor = math.length(m_Aabo.Size) * 0.5f
                 };
             }
         }
 
         public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return new AxisAlignedBoundingOctahedron(m_Aabb.Min, m_Aabb.Max);
+            return m_Aabo;
         }
 
         public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
             // TODO: Store a convex hull wrapping the mesh, and use that to calculate tighter bounds?
-            Aabb aabb = Math.TransformAabb(transform, m_Aabb);
-            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+            return Math.TransformAabo(transform, m_Aabo);
         }
 
         // Cast a ray against this collider.
