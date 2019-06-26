@@ -856,8 +856,7 @@ namespace Unity.Physics
                     quadAabo.Add(vertices[vis[2]]);
                     quadAabo.Add(vertices[vis[3]]);
 
-                    float aaboSurfaceArea = quadAabo.SurfaceArea;
-
+                    float aaboSurfaceArea = Utils.CalcSurfaceArea(quadAabo);
                     if (aaboSurfaceArea > Math.Constants.Eps)
                     {
                         float quadSurfaceArea = CalcTwiceSurfaceArea(quadVertices[0], quadVertices[1], quadVertices[2]) + CalcTwiceSurfaceArea(quadVertices[0], quadVertices[1], quadVertices[3]);
