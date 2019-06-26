@@ -1,7 +1,8 @@
 {
   "dependencies": {
-    "com.unity.bounds": "file:C:/Users/Andres/Development/com.unity.bounds",
-    "com.unity.burst": "1.1.0-preview.2",
+    "com.unity.bounds": "file:C:/Users/Andres/Development/com.unity.bounds/BoundsExample/Packages/com.unity.bounds",
+    "com.unity.burst": "file:C:/Users/Andres/Development/com.unity.bounds/BoundsExample/Packages/com.unity.burst",
+    "com.unity.mathematics": "file:C:/Users/Andres/Development/com.unity.bounds/BoundsExample/Packages/com.unity.mathematics",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ide.visualstudio": "1.0.11",
     "com.unity.performance.profile-analyzer": "0.4.0-preview.5",
