@@ -134,12 +134,12 @@ namespace Unity.Physics
         {
             // Create inputs
             var points = new NativeArray<BoundingVolumeHierarchy.PointAndIndex>(NumChildren, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            var aabbs = new NativeArray<Aabb>(NumChildren, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(NumChildren, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             for (int i = 0; i < NumChildren; ++i)
             {
                 points[i] = new BoundingVolumeHierarchy.PointAndIndex { Position = Children[i].CompoundFromChild.pos, Index = i };
                 AxisAlignedBoundingOctahedron aabo = Children[i].Collider->CalculateAxisAlignedBoundingOctahedron(Children[i].CompoundFromChild);
-                aabbs[i] = new Aabb(aabo);
+                aabos[i] = aabo;
             }
 
             // Build BVH
@@ -151,10 +151,10 @@ namespace Unity.Physics
             };
 
             var bvh = new BoundingVolumeHierarchy(nodes);
-            bvh.Build(points, aabbs, out int numNodes);
+            bvh.Build(points, aabos, out int numNodes);
 
             points.Dispose();
-            aabbs.Dispose();
+            aabos.Dispose();
 
             return numNodes;
         }
@@ -259,8 +259,8 @@ namespace Unity.Physics
         public unsafe AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
             // TODO: Store a convex hull wrapping all the children, and use that to calculate tighter bounds?
-            Aabb aabb = Math.TransformAabb(transform, BoundingVolumeHierarchy.Domain);
-            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+            AxisAlignedBoundingOctahedron aabo = Math.TransformAabo(transform, BoundingVolumeHierarchy.Domain);
+            return aabo;
         }
 
         // Cast a ray against this collider.

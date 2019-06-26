@@ -22,8 +22,10 @@ namespace Unity.Physics
         public Aabb(Unity.Bounds.AxisAlignedBoundingOctahedron aabo)
         {
             Unity.Bounds.AxisAlignedBoundingBox aabb = aabo.CircumscribedAABB;
-            Min = aabb.Min;
-            Max = aabb.Max;
+            var mn = aabo.Min;
+            var mx = aabo.Max;
+            Min = new float3(mn.x, mn.y, mn.z);
+            Max = new float3(mx.x, mx.y, mx.z);
         }
 
         public Aabb(Unity.Bounds.AxisAlignedBoundingBox aabb)

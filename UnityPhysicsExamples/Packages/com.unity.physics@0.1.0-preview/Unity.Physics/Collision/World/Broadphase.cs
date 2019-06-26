@@ -22,7 +22,7 @@ namespace Unity.Physics
 
         public Tree StaticTree => m_StaticTree;
         public Tree DynamicTree => m_DynamicTree;
-        public Aabb Domain => Aabb.Union(m_StaticTree.BoundingVolumeHierarchy.Domain, m_DynamicTree.BoundingVolumeHierarchy.Domain);
+        public AxisAlignedBoundingOctahedron Domain => AxisAlignedBoundingOctahedron.Union(m_StaticTree.BoundingVolumeHierarchy.Domain, m_DynamicTree.BoundingVolumeHierarchy.Domain);
 
         public void Init()
         {

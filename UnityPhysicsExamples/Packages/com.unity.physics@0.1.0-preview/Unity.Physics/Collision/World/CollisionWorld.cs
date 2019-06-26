@@ -113,13 +113,12 @@ namespace Unity.Physics
 
         public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
         {
-            return new AxisAlignedBoundingOctahedron(Broadphase.Domain.Min, Broadphase.Domain.Max);
+            return Broadphase.Domain;
         }
 
         public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
         {
-            Aabb aabb = TransformAabb(transform, Broadphase.Domain);
-            return new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max);
+            return TransformAabo(transform, Broadphase.Domain);
         }
 
         public bool CastRay(RaycastInput input) => QueryWrappers.RayCast(ref this, input);

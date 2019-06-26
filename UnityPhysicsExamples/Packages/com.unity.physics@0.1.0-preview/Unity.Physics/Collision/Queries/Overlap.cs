@@ -1,5 +1,6 @@
 using System;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -7,6 +8,12 @@ namespace Unity.Physics
     public struct OverlapAabbInput
     {
         public Aabb Aabb;
+        public CollisionFilter Filter;
+    }
+
+    public struct OverlapAaboInput
+    {
+        public AxisAlignedBoundingOctahedron Aabo;
         public CollisionFilter Filter;
     }
 
@@ -52,8 +59,28 @@ namespace Unity.Physics
             }
         }
 
+        public static unsafe void AaboCollider<T>(OverlapAaboInput input, Collider* collider, ref T collector)
+            where T : struct, IOverlapCollector
+        {
+            if (!CollisionFilter.IsCollisionEnabled(input.Filter, collider->Filter))
+            {
+                return;
+            }
+
+            switch (collider->Type)
+            {
+                case ColliderType.Mesh:
+                    AaboMesh(input, (MeshCollider*)collider, ref collector);
+                    break;
+                case ColliderType.Compound:
+                    AaboCompound(input, (CompoundCollider*)collider, ref collector);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
         // Mesh
-        private unsafe struct MeshLeafProcessor : BoundingVolumeHierarchy.IAabbOverlapLeafProcessor
+        private unsafe struct MeshLeafProcessor : BoundingVolumeHierarchy.IAabbOverlapLeafProcessor, BoundingVolumeHierarchy.IAaboOverlapLeafProcessor
         {
             readonly Mesh* m_Mesh;
             readonly uint m_NumColliderKeyBits;
@@ -89,6 +116,26 @@ namespace Unity.Physics
                 }
             }
 
+            public void AaboLeaf<T>(OverlapAaboInput input, int primitiveKey, ref T collector) where T : struct, IOverlapCollector
+            {
+                fixed (uint* keys = m_Keys)
+                {
+                    keys[m_NumKeys++] = new ColliderKey(m_NumColliderKeyBits, (uint)(primitiveKey << 1)).Value;
+
+                    Mesh.PrimitiveFlags flags = m_Mesh->GetPrimitiveFlags(primitiveKey);
+                    if (Mesh.IsPrimitveFlagSet(flags, Mesh.PrimitiveFlags.IsTrianglePair) &&
+                        !Mesh.IsPrimitveFlagSet(flags, Mesh.PrimitiveFlags.IsQuad))
+                    {
+                        keys[m_NumKeys++] = new ColliderKey(m_NumColliderKeyBits, (uint)(primitiveKey << 1) | 1).Value;
+                    }
+                }
+
+                if (m_NumKeys > k_MaxKeys - 8)
+                {
+                    Flush(ref collector);
+                }
+            }
+
             // Flush keys to collector
             internal void Flush<T>(ref T collector) where T : struct, IOverlapCollector
             {
@@ -98,6 +145,8 @@ namespace Unity.Physics
                 }
                 m_NumKeys = 0;
             }
+
+            
         }
 
         private static unsafe void AabbMesh<T>(OverlapAabbInput input, MeshCollider* mesh, ref T collector)
@@ -108,9 +157,18 @@ namespace Unity.Physics
             leafProcessor.Flush(ref collector);
         }
 
+        private static unsafe void AaboMesh<T>(OverlapAaboInput input, MeshCollider* mesh, ref T collector)
+            where T : struct, IOverlapCollector
+        {
+            var leafProcessor = new MeshLeafProcessor(mesh);
+            //mesh->Mesh.BoundingVolumeHierarchy.AabbOverlap(input, ref leafProcessor, ref collector);
+
+            mesh->Mesh.BoundingVolumeHierarchy.AaboOverlap(input, ref leafProcessor, ref collector);
+            leafProcessor.Flush(ref collector);
+        }
 
         // Compound
-        private unsafe struct CompoundLeafProcessor : BoundingVolumeHierarchy.IAabbOverlapLeafProcessor
+        private unsafe struct CompoundLeafProcessor : BoundingVolumeHierarchy.IAabbOverlapLeafProcessor, BoundingVolumeHierarchy.IAaboOverlapLeafProcessor
         {
             readonly CompoundCollider* m_CompoundCollider;
             readonly uint m_NumColliderKeyBits;
@@ -151,6 +209,31 @@ namespace Unity.Physics
                 }
             }
 
+            public void AaboLeaf<T>(OverlapAaboInput input, int childIndex, ref T collector) where T : struct, IOverlapCollector
+            {
+                ColliderKey childKey = new ColliderKey(m_NumColliderKeyBits, (uint)(childIndex));
+
+                // Recurse if child is a composite
+                ref CompoundCollider.Child child = ref m_CompoundCollider->Children[childIndex];
+                if (child.Collider->CollisionType == CollisionType.Composite)
+                {
+                    OverlapAaboInput childInput = input;
+                    childInput.Aabo = Math.TransformAabo(math.inverse(child.CompoundFromChild), input.Aabo);
+
+                    collector.PushCompositeCollider(new ColliderKeyPath(childKey, m_NumColliderKeyBits));
+                    AaboCollider(childInput, child.Collider, ref collector);
+                    collector.PopCompositeCollider(m_NumColliderKeyBits);
+                }
+                else
+                {
+                    m_Keys[m_NumKeys++] = childKey.Value;
+                    if (m_NumKeys > k_MaxKeys - 8)
+                    {
+                        Flush(ref collector);
+                    }
+                }
+            }
+
             // Flush keys to collector
             internal void Flush<T>(ref T collector) where T : struct, IOverlapCollector
             {
@@ -167,6 +250,15 @@ namespace Unity.Physics
         {
             var leafProcessor = new CompoundLeafProcessor(compound);
             compound->BoundingVolumeHierarchy.AabbOverlap(input, ref leafProcessor, ref collector);
+            leafProcessor.Flush(ref collector);
+        }
+
+        
+        private static unsafe void AaboCompound<T>(OverlapAaboInput input, CompoundCollider* compound, ref T collector)
+            where T : struct, IOverlapCollector
+        {
+            var leafProcessor = new CompoundLeafProcessor(compound);
+            compound->BoundingVolumeHierarchy.AaboOverlap(input, ref leafProcessor, ref collector);
             leafProcessor.Flush(ref collector);
         }
 

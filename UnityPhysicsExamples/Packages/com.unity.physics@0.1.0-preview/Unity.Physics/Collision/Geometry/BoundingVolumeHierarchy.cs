@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Bounds;
+using System;
 
 namespace Unity.Physics
 {
@@ -14,7 +15,7 @@ namespace Unity.Physics
         private readonly unsafe Node* m_Nodes;
         private readonly unsafe CollisionFilter* m_NodeFilters;
 
-        public unsafe Aabb Domain => m_Nodes[1].Bounds.GetCompoundAabb();
+        public unsafe AxisAlignedBoundingOctahedron Domain => m_Nodes[1].Bounds.GetCompoundAabo();
 
         public unsafe BoundingVolumeHierarchy(Node* nodes, CollisionFilter* nodeFilters)
         {
@@ -39,13 +40,13 @@ namespace Unity.Physics
         [StructLayout(LayoutKind.Sequential, Size = 128)]
         public struct Node
         {
-            public FourTransposedAabbs Bounds;
+            public AABO4 Bounds;
             public int4 Data;
             public int Flags;
 
             public static Node Empty => new Node
             {
-                Bounds = FourTransposedAabbs.Empty,
+                Bounds = new AABO4(),
                 Data = int4.zero,
                 IsLeaf = false
             };
@@ -102,7 +103,7 @@ namespace Unity.Physics
 
         public unsafe void SelfBvhOverlap<T>(ref T pairWriter, int rootA = 1, int rootB = 1) where T : struct, ITreeOverlapCollector
         {
-            TreeOverlap(ref pairWriter, m_Nodes, m_Nodes, m_NodeFilters,  m_NodeFilters, rootA, rootB);
+            TreeOverlap(ref pairWriter, m_Nodes, m_Nodes, m_NodeFilters, m_NodeFilters, rootA, rootB);
         }
 
         public static unsafe void TreeOverlap<T>(
@@ -165,16 +166,17 @@ namespace Unity.Physics
             }
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe void ProcessAA<T>(ref Node node, int4* compressedData, ref int* stack, ref int* stackA, ref int* stackB, ref T pairWriter) where T : struct, ITreeOverlapCollector
         {
             int4 nodeData = node.Data;
-            FourTransposedAabbs nodeBounds = node.Bounds;
+            AABO4 nodeBounds = node.Bounds;
 
-            FourTransposedAabbs* aabbT = stackalloc FourTransposedAabbs[3];
-            aabbT[0] = nodeBounds.GetAabbT(0);
-            aabbT[1] = nodeBounds.GetAabbT(1);
-            aabbT[2] = nodeBounds.GetAabbT(2);
+            AABO4* aaboT = stackalloc AABO4[3];
+            aaboT[0] = nodeBounds.GetAaboT(0);
+            aaboT[1] = nodeBounds.GetAaboT(1);
+            aaboT[2] = nodeBounds.GetAaboT(2);
 
             bool4* masks = stackalloc bool4[3];
             masks[0] = new bool4(false, true, true, true);
@@ -182,9 +184,9 @@ namespace Unity.Physics
             masks[2] = new bool4(false, false, false, true);
 
             int3 compressedCounts = int3.zero;
-            compressedCounts[0] = math.compress((int*)(compressedData)    , 0, nodeData, aabbT[0].Overlap1Vs4(ref nodeBounds) & masks[0]);
-            compressedCounts[1] = math.compress((int*)(compressedData + 1), 0, nodeData, aabbT[1].Overlap1Vs4(ref nodeBounds) & masks[1]);
-            compressedCounts[2] = math.compress((int*)(compressedData + 2), 0, nodeData, aabbT[2].Overlap1Vs4(ref nodeBounds) & masks[2]);
+            compressedCounts[0] = math.compress((int*)(compressedData), 0, nodeData, aaboT[0].Overlap1Vs4(ref nodeBounds) & masks[0]);
+            compressedCounts[1] = math.compress((int*)(compressedData + 1), 0, nodeData, aaboT[1].Overlap1Vs4(ref nodeBounds) & masks[1]);
+            compressedCounts[2] = math.compress((int*)(compressedData + 2), 0, nodeData, aaboT[2].Overlap1Vs4(ref nodeBounds) & masks[2]);
 
             if (node.IsLeaf)
             {
@@ -227,13 +229,13 @@ namespace Unity.Physics
             }
 
             bool4* overlapMask = stackalloc bool4[4];
-            FourTransposedAabbs aabbTA = nodeA->Bounds.GetAabbT(0);
+            AABO4 aabbTA = nodeA->Bounds.GetAaboT(0);
             overlapMask[0] = aabbTA.Overlap1Vs4(ref nodeB->Bounds);
-            aabbTA = nodeA->Bounds.GetAabbT(1);
+            aabbTA = nodeA->Bounds.GetAaboT(1);
             overlapMask[1] = aabbTA.Overlap1Vs4(ref nodeB->Bounds);
-            aabbTA = nodeA->Bounds.GetAabbT(2);
+            aabbTA = nodeA->Bounds.GetAaboT(2);
             overlapMask[2] = aabbTA.Overlap1Vs4(ref nodeB->Bounds);
-            aabbTA = nodeA->Bounds.GetAabbT(3);
+            aabbTA = nodeA->Bounds.GetAaboT(3);
             overlapMask[3] = aabbTA.Overlap1Vs4(ref nodeB->Bounds);
 
             int4 compressedCount = int4.zero;
@@ -268,7 +270,7 @@ namespace Unity.Physics
                     {
                         *((int4*)stackA) = compressedData[i];
                         int* internalStack = stackA + compressedCount[i];
-                        FourTransposedAabbs aabbT = nodeA->Bounds.GetAabbT(i);
+                        AABO4 aabbT = nodeA->Bounds.GetAaboT(i);
                         int4 leafA = new int4(nodeA->Data[i]);
 
                         do
@@ -306,6 +308,21 @@ namespace Unity.Physics
             void AabbLeaf<T>(OverlapAabbInput input, int leafData, ref T collector) where T : struct, IOverlapCollector;
         }
 
+
+        public interface IAaboOverlapLeafProcessor
+        {
+            // Called when the query overlaps a leaf node of the bounding volume hierarchy
+            void AaboLeaf<T>(OverlapAaboInput input, int leafData, ref T collector) where T : struct, IOverlapCollector;
+        }
+
+
+        public unsafe void AaboOverlap<TProcessor, TCollector>(OverlapAaboInput input, ref TProcessor processor, ref TCollector collector, int root = 1)
+            where TProcessor : struct, IAaboOverlapLeafProcessor
+            where TCollector : struct, IOverlapCollector
+        {
+
+        }
+
         public unsafe void AabbOverlap<TProcessor, TCollector>(OverlapAabbInput input, ref TProcessor processor, ref TCollector collector, int root = 1)
             where TProcessor : struct, IAabbOverlapLeafProcessor
             where TCollector : struct, IOverlapCollector
@@ -320,7 +337,8 @@ namespace Unity.Physics
             {
                 int nodeIndex = *(--stack);
                 Node* node = m_Nodes + nodeIndex;
-                bool4 overlap = aabbT.Overlap1Vs4(ref node->Bounds);
+                FourTransposedAabbs fta = getAabbT(node->Bounds);
+                bool4 overlap = aabbT.Overlap1Vs4(ref fta);
                 int4 compressedValues;
                 int compressedCount = math.compress((int*)(&compressedValues), 0, node->Data, overlap);
 
@@ -337,6 +355,19 @@ namespace Unity.Physics
                     stack += compressedCount;
                 }
             } while (stack > binaryStack);
+        }
+
+        private FourTransposedAabbs getAabbT(AABO4 bounds)
+        {
+            var aabbT = new FourTransposedAabbs();
+            aabbT.Lx = bounds.Lx;
+            aabbT.Ly = bounds.Ly;
+            aabbT.Lz = bounds.Lz;
+            aabbT.Hx = bounds.Hx;
+            aabbT.Hy = bounds.Hy;
+            aabbT.Hz = bounds.Hz;
+            return aabbT;
+
         }
 
         #endregion
@@ -359,7 +390,8 @@ namespace Unity.Physics
             do
             {
                 Node* node = m_Nodes + *(--top);
-                bool4 hitMask = node->Bounds.Raycast(input.Ray, collector.MaxFraction, out float4 hitFractions);
+                FourTransposedAabbs fta = getAabbT(node->Bounds);
+                bool4 hitMask = fta.Raycast(input.Ray, collector.MaxFraction, out float4 hitFractions);
                 int4 hitData;
                 int hitCount = math.compress((int*)(&hitData), 0, node->Data, hitMask);
 
@@ -415,11 +447,12 @@ namespace Unity.Physics
             do
             {
                 Node* node = m_Nodes + *(--top);
-                FourTransposedAabbs bounds = node->Bounds;
+                AABO4 bounds = node->Bounds;
                 bounds.Lx -= aabbExtents.x;
                 bounds.Ly -= aabbExtents.y;
                 bounds.Lz -= aabbExtents.z;
-                bool4 hitMask = bounds.Raycast(aabbRay, collector.MaxFraction, out float4 hitFractions);
+                FourTransposedAabbs fta = getAabbT(bounds);
+                bool4 hitMask = fta.Raycast(aabbRay, collector.MaxFraction, out float4 hitFractions);
                 int4 hitData;
                 int hitCount = math.compress((int*)(&hitData), 0, node->Data, hitMask);
 
@@ -473,7 +506,7 @@ namespace Unity.Physics
             {
                 int nodeIndex = *(--stack);
                 Node* node = m_Nodes + nodeIndex;
-                float4 distanceToNodesSquared = node->Bounds.DistanceFromPointSquared(ref pointT);
+                float4 distanceToNodesSquared = node->Bounds.DistanceFromPointSquared(pointT.X, pointT.X, pointT.X);
                 bool4 overlap = (node->Bounds.Lx <= node->Bounds.Hx) & (distanceToNodesSquared <= maxDistanceSquared);
                 int4 hitData;
                 int hitCount = math.compress((int*)(&hitData), 0, node->Data, overlap);
@@ -525,15 +558,15 @@ namespace Unity.Physics
             *stack++ = 1;
 
             AxisAlignedBoundingOctahedron aabo = input.Collider->CalculateAxisAlignedBoundingOctahedron(input.Transform);
-            FourTransposedAabbs aabbT;
-            (&aabbT)->SetAllAabbs(new Aabb(aabo));
+            AABO4 aaboT;
+            (&aaboT)->SetAllAabos(aabo);
             float4 maxDistanceSquared = new float4(collector.MaxFraction * collector.MaxFraction);
 
             do
             {
                 int nodeIndex = *(--stack);
                 Node* node = m_Nodes + nodeIndex;
-                float4 distanceToNodesSquared = node->Bounds.DistanceFromAabbSquared(ref aabbT);
+                float4 distanceToNodesSquared = node->Bounds.DistanceFromAaboSquared(ref aaboT);
                 bool4 overlap = (node->Bounds.Lx <= node->Bounds.Hx) & (distanceToNodesSquared <= maxDistanceSquared);
                 int4 hitData;
                 int hitCount = math.compress((int*)(&hitData), 0, node->Data, overlap);

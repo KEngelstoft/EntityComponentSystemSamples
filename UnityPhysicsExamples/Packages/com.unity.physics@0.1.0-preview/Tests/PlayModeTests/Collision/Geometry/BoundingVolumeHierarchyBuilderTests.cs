@@ -93,7 +93,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             var nodes = new NativeArray<Node>(numNodes, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             var bvh = new BoundingVolumeHierarchy(nodes);
-            bvh.Build(points, aabbs, out int numNodesOut);
+           // bvh.Build(points, aabs, out int numNodesOut);
             bvh.CheckIntegrity();
 
             points.Dispose();
@@ -351,7 +351,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             var seenUnfiltered = new HashSet<BodyIndexPair>();
             {
                 var bvhUnfiltered = new BoundingVolumeHierarchy(nodes);
-                bvhUnfiltered.Build(points, aabbs, out int numNodesOut);
+                //bvhUnfiltered.Build(points, aabbs, out int numNodesOut);
                 bvhUnfiltered.CheckIntegrity();
 
                 EverythingWriter pairWriter = new EverythingWriter { SeenPairs = seenUnfiltered };
@@ -361,8 +361,8 @@ namespace Unity.Physics.Tests.Collision.Geometry
             var nodeFilters = new NativeArray<CollisionFilter>(numNodes, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var bvhFiltered = new BoundingVolumeHierarchy(nodes, nodeFilters);
             int numNodesFilteredTree;
-            bvhFiltered.Build(points, aabbs, out numNodesFilteredTree);
-            bvhFiltered.BuildCombinedCollisionFilter(bodyFilters, 0, numNodesFilteredTree - 1);
+          // bvhFiltered.Build(points, aabbs, out numNodesFilteredTree);
+           // bvhFiltered.BuildCombinedCollisionFilter(bodyFilters, 0, numNodesFilteredTree - 1);
 
             var filteredCollisionPairs = new BlockStream(1, 0xec87b613);
             BlockStream.Writer filteredPairWriter = filteredCollisionPairs;
@@ -443,7 +443,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             var nodes = new NativeArray<Node>(numNodes, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             var bvh = new BoundingVolumeHierarchy(nodes);
-            bvh.Build(points, aabbs, out int numNodesOut);
+        //    bvh.Build(points, aabbs, out int numNodesOut);
             bvh.CheckIntegrity();
 
             var buffer = new PairBuffer { Pairs = new List<BodyIndexPair>() };
@@ -538,7 +538,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             var nodes = new NativeArray<Node>(numNodes, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             var bvh = new BoundingVolumeHierarchy(nodes);
-            bvh.Build(points, aabbs, out int numNodesOut);
+           // bvh.Build(points, aabbs, out int numNodesOut);
             bvh.CheckIntegrity();
 
             var collisionPairs = new BlockStream(1, 0xd586fc6e);

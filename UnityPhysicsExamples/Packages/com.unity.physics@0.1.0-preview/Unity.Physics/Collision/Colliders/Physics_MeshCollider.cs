@@ -59,7 +59,7 @@ namespace Unity.Physics
             {
                 // Prepare data for BVH
                 var points = new NativeArray<BoundingVolumeHierarchy.PointAndIndex>(primitives.Count, Allocator.Temp);
-                var aabbs = new NativeArray<Aabb>(primitives.Count, Allocator.Temp);
+                var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(primitives.Count, Allocator.Temp);
 
                 for (int i = 0; i < primitives.Count; i++)
                 {
@@ -71,19 +71,29 @@ namespace Unity.Physics
                         continue;
                     }
 
-                    aabbs[i] = Aabb.CreateFromPoints(p.Vertices);
+                    aabos[i] = new AxisAlignedBoundingOctahedron();
+                    aabos[i].Reset();
+                    aabos[i].Add(p.Vertices.c0);
+                    aabos[i].Add(p.Vertices.c1);
+                    aabos[i].Add(p.Vertices.c2);
+                    aabos[i].Add(p.Vertices.c3);
+
+                    //AxisAlignedBoundingOctahedron a = new AxisAlignedBoundingOctahedron(p.Vertices,0,p.)
+                    //aabbs[i] = Aabb.CreateFromPoints(p.Vertices);
+                    var c = aabos[i].Center;
+                    var center = new float3(c.x, c.y, c.z);
                     points[i] = new BoundingVolumeHierarchy.PointAndIndex
                     {
-                        Position = aabbs[i].Center,
+                        Position = center,
                         Index = i
                     };
                 }
 
                 var bvh = new BoundingVolumeHierarchy(nodes);
-                bvh.Build(points, aabbs, out numNodes, useSah: true);
+                bvh.Build(points, aabos, out numNodes, useSah: true);
 
                 points.Dispose();
-                aabbs.Dispose();
+                aabos.Dispose();
             }
 
             // Build mesh sections
@@ -120,7 +130,7 @@ namespace Unity.Physics
                 }
 
                 var domain = meshCollider->Mesh.BoundingVolumeHierarchy.Domain;
-                meshCollider->m_Aabo = new AxisAlignedBoundingOctahedron(domain.Min,domain.Max);
+                meshCollider->m_Aabo = domain;
                 meshCollider->NumColliderKeyBits = meshCollider->Mesh.NumColliderKeyBits;
             }
 

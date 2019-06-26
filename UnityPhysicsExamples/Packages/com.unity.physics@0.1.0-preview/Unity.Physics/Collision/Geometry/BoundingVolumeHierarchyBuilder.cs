@@ -7,6 +7,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine.Assertions;
 using static Unity.Physics.Math;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -37,7 +38,7 @@ namespace Unity.Physics
             /// </summary>
             public struct Range
             {
-                public Range(int start, int length, int root, Aabb domain)
+                public Range(int start, int length, int root, AxisAlignedBoundingOctahedron domain)
                 {
                     Start = start;
                     Length = length;
@@ -48,7 +49,7 @@ namespace Unity.Physics
                 public int Start;
                 public int Length;
                 public int Root;
-                public Aabb Domain;
+                public AxisAlignedBoundingOctahedron Domain;
             }
 
             void SortRange(int axis, ref Range range)
@@ -76,7 +77,7 @@ namespace Unity.Physics
             static void ComputeAxisAndPivot(ref Range range, out int axis, out float pivot)
             {
                 // Compute axis and pivot.
-                axis = IndexOfMaxComponent(range.Domain.Extents);
+                axis = IndexOfMaxComponent(range.Domain.Size);
                 pivot = ((range.Domain.Min + range.Domain.Max) / 2)[axis];
             }
 
@@ -106,20 +107,22 @@ namespace Unity.Physics
 
                 PointAndIndex* p = (PointAndIndex*)PointsAsFloat4 + range.Start;
 
-                Aabb runningAabb = Aabb.Empty;
+                AxisAlignedBoundingOctahedron runningAabo = new AxisAlignedBoundingOctahedron();
+                runningAabo.Reset();
 
                 for (int i = 0; i < points.Length; i++)
                 {
-                    runningAabb.Include(Aabbs[p[i].Index]);
-                    scores[i] = (i + 1) * runningAabb.SurfaceArea;
+                    runningAabo.Merge(Aabos[p[i].Index]);
+                    scores[i] = (i + 1) * Utils.CalcSurfaceArea(runningAabo);
                 }
 
-                runningAabb = Aabb.Empty;
+                runningAabo = new AxisAlignedBoundingOctahedron();
+                runningAabo.Reset();
 
                 for (int i = points.Length - 1, j = 1; i > 0; --i, ++j)
                 {
-                    runningAabb.Include(Aabbs[p[i].Index]);
-                    float sum = scores[i - 1] + j * runningAabb.SurfaceArea;
+                    runningAabo.Merge(Aabos[p[i].Index]);
+                    float sum = scores[i - 1] + j * Utils.CalcSurfaceArea(runningAabo);
                     if (sum < minScore)
                     {
                         pivot = i;
@@ -198,8 +201,10 @@ namespace Unity.Physics
             {
                 Assert.IsTrue(range.Length > 1/*, "Range length must be greater than 1."*/);
 
-                Aabb lDomain = Aabb.Empty;
-                Aabb rDomain = Aabb.Empty;
+                AxisAlignedBoundingOctahedron lDomain = new AxisAlignedBoundingOctahedron();
+                AxisAlignedBoundingOctahedron rDomain = new AxisAlignedBoundingOctahedron();
+                lDomain.Reset();
+                rDomain.Reset();
 
                 float4* p = PointsAsFloat4;
                 float4* start = p + range.Start;
@@ -211,19 +216,19 @@ namespace Unity.Physics
 
                     while (start <= end && (*start)[axis] < pivot)
                     {
-                        lDomain.Include((*(start++)).xyz);
+                        lDomain.Add((*(start++)).xyz);
                     }
 
                     // Consume right.
                     while (end > start && (*end)[axis] >= pivot)
                     {
-                        rDomain.Include((*(end--)).xyz);
+                        rDomain.Add((*(end--)).xyz);
                     }
 
                     if (start >= end) goto FINISHED;
 
-                    lDomain.Include((*end).xyz);
-                    rDomain.Include((*start).xyz);
+                    lDomain.Add((*end).xyz);
+                    rDomain.Add((*start).xyz);
 
                     Swap(ref *(start++), ref *(end--));
                 } while (true);
@@ -237,7 +242,8 @@ namespace Unity.Physics
                     SplitRange(ref range, range.Length / 2, ref lRange, ref rRange);
 
                     SetAabbFromPoints(ref lDomain, PointsAsFloat4 + lRange.Start, lRange.Length);
-                    SetAabbFromPoints(ref rDomain, PointsAsFloat4 + rRange.Start, rRange.Length);
+                    //SetAabbFromPoints(ref rDomain, PointsAsFloat4 + rRange.Start, rRange.Length);
+
                 }
                 else
                 {
@@ -401,7 +407,7 @@ namespace Unity.Physics
 
             public BoundingVolumeHierarchy Bvh;
             public NativeArray<PointAndIndex> Points;
-            public NativeArray<Aabb> Aabbs;
+            public NativeArray<AxisAlignedBoundingOctahedron> Aabos;
             public int FreeNodeIndex;
             public bool UseSah;
         }
@@ -458,7 +464,7 @@ namespace Unity.Physics
             return handle;
         }
 
-        public unsafe void Build(NativeArray<PointAndIndex> points, NativeArray<Aabb> aabbs, out int nodeCount, bool useSah = false)
+        public unsafe void Build(NativeArray<PointAndIndex> points, NativeArray<AxisAlignedBoundingOctahedron> aabos, out int nodeCount, bool useSah = false)
         {
             m_Nodes[0] = Node.Empty;
 
@@ -466,17 +472,17 @@ namespace Unity.Physics
             {
                 Bvh = this,
                 Points = points,
-                Aabbs = aabbs,
+                Aabos = aabos,
                 FreeNodeIndex = 2,
                 UseSah = useSah
             };
 
-            Aabb aabb = new Aabb();
-            SetAabbFromPoints(ref aabb, (float4*)points.GetUnsafePtr(), points.Length);
-            builder.Build(new Builder.Range(0, points.Length, 1, aabb));
+            AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+            SetAabbFromPoints(ref aabo, (float4*)points.GetUnsafePtr(), points.Length);
+            builder.Build(new Builder.Range(0, points.Length, 1, aabo));
             nodeCount = builder.FreeNodeIndex;
 
-            Refit(aabbs, 1, builder.FreeNodeIndex - 1);
+            Refit(aabos, 1, builder.FreeNodeIndex - 1);
         }
 
         // For each node between nodeStartIndex and nodeEnd index, set the collision filter info to the combination of the node's childen
@@ -536,7 +542,6 @@ namespace Unity.Physics
             m_NodeFilters[nodeIndex] = combinedFilter;
         }
 
-
         public unsafe void Refit(NativeArray<Aabb> aabbs, int nodeStartIndex, int nodeEndIndex)
         {
             Node* baseNode = m_Nodes;
@@ -555,27 +560,72 @@ namespace Unity.Physics
                         }
                         else
                         {
-                            aabb = Aabb.Empty;
+                            aabb =Aabb.Empty;
                         }
 
-                        currentNode->Bounds.SetAabb(j, aabb);
+                        currentNode->Bounds.SetAabo(j, new AxisAlignedBoundingOctahedron(aabb.Min, aabb.Max));
                     }
                 }
                 else
                 {
                     for (int j = 0; j < 4; j++)
                     {
-                        Aabb aabb;
+                        AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
                         if (currentNode->IsInternalValid(j))
                         {
-                            aabb = baseNode[currentNode->Data[j]].Bounds.GetCompoundAabb();
+                            aabo = baseNode[currentNode->Data[j]].Bounds.GetCompoundAabo();
                         }
                         else
                         {
-                            aabb = Aabb.Empty;
+                            aabo.Reset();
                         }
 
-                        currentNode->Bounds.SetAabb(j, aabb);
+                        currentNode->Bounds.SetAabo(j, aabo);
+                    }
+                }
+            }
+        }
+
+        public unsafe void Refit(NativeArray<AxisAlignedBoundingOctahedron> aabos, int nodeStartIndex, int nodeEndIndex)
+        {
+            Node* baseNode = m_Nodes;
+            Node* currentNode = baseNode + nodeEndIndex;
+
+            for (int i = nodeEndIndex; i >= nodeStartIndex; i--, currentNode--)
+            {
+                if (currentNode->IsLeaf)
+                {
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        AxisAlignedBoundingOctahedron aabo;
+                        if (currentNode->IsLeafValid(j))
+                        {
+                            aabo = aabos[currentNode->Data[j]];
+                        }
+                        else
+                        {
+                            aabo = new AxisAlignedBoundingOctahedron();
+                            aabo.Reset();
+                        }
+
+                        currentNode->Bounds.SetAabo(j, aabo);
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+                        if (currentNode->IsInternalValid(j))
+                        {
+                            aabo = baseNode[currentNode->Data[j]].Bounds.GetCompoundAabo();
+                        }
+                        else
+                        {
+                            aabo.Reset();
+                        }
+
+                        currentNode->Bounds.SetAabo(j, aabo);
                     }
                 }
             }
@@ -590,8 +640,8 @@ namespace Unity.Physics
 
             for (int j = 0; j < 4; j++)
             {
-                Aabb compoundAabb = baseNode[currentNode->Data[j]].Bounds.GetCompoundAabb();
-                currentNode->Bounds.SetAabb(j, compoundAabb);
+                AxisAlignedBoundingOctahedron compoundAabo = baseNode[currentNode->Data[j]].Bounds.GetCompoundAabo();
+                currentNode->Bounds.SetAabo(j, compoundAabo);
             }
         }
 
@@ -629,9 +679,9 @@ namespace Unity.Physics
             int level0Size = 1;
             int level1Size = 0;
 
-            Aabb aabb = new Aabb();
-            SetAabbFromPoints(ref aabb, (float4*)points.GetUnsafePtr(), points.Length);
-            level0[0] = new Builder.Range(0, points.Length, 1, aabb);
+            AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+            SetAaboFromPoints(ref aabo, (float4*)points.GetUnsafePtr(), points.Length);
+            level0[0] = new Builder.Range(0, points.Length, 1, aabo);
 
             int largestAllowedRange = math.max(level0[0].Length / threadCount, Constants.SmallRangeSize);
             int smallRangeThreshold = math.max(largestAllowedRange / threadCount, Constants.SmallRangeSize);
@@ -705,6 +755,15 @@ namespace Unity.Physics
             m_Nodes[0] = Node.Empty;
         }
 
+        private unsafe void SetAaboFromPoints(ref AxisAlignedBoundingOctahedron aabo, float4* points, int length)
+        {
+            aabo.Reset();
+            for (int i = 0; i < length; i++)
+            {
+                aabo.Add(points[i].xyz);
+            }
+        }
+
         // Build the branch for range. Returns the index of the last built node in the range
         public int BuildBranch(NativeArray<PointAndIndex> points, NativeArray<Aabb> aabb, Builder.Range range, int firstNodeIndex)
         {
@@ -723,6 +782,23 @@ namespace Unity.Physics
             return builder.FreeNodeIndex - 1;
         }
 
+        public int BuildBranch(NativeArray<PointAndIndex> points, NativeArray<AxisAlignedBoundingOctahedron> aabo, Builder.Range range, int firstNodeIndex)
+        {
+            var builder = new Builder
+            {
+                Bvh = this,
+                Points = points,
+                FreeNodeIndex = firstNodeIndex,
+                UseSah = false
+            };
+
+            builder.Build(range);
+
+            Refit(aabo, firstNodeIndex, builder.FreeNodeIndex - 1);
+            RefitNode(range.Root);
+            return builder.FreeNodeIndex - 1;
+        }
+
         // helper
         private static unsafe void SetAabbFromPoints(ref Aabb aabb, float4* points, int length)
         {
@@ -732,6 +808,17 @@ namespace Unity.Physics
             {
                 aabb.Min = math.min(aabb.Min, points[i].xyz);
                 aabb.Max = math.max(aabb.Max, points[i].xyz);
+            }
+        }
+
+        private static unsafe void SetAabbFromPoints(ref AxisAlignedBoundingOctahedron aabo, float4* points, int length)
+        {
+            aabo.Min = Math.Constants.Max4F;
+            aabo.Max = Math.Constants.Min4F;
+            for (int i = 0; i < length; i++)
+            {
+                aabo.Min = math.min(aabo.Min, points[i].xyzw);
+                aabo.Max = math.max(aabo.Max, points[i].xyzw);
             }
         }
 
@@ -842,16 +929,16 @@ namespace Unity.Physics
         {
             Node parent = m_Nodes[parentIndex];
             Node node = m_Nodes[nodeIndex];
-            Aabb parentAabb = parent.Bounds.GetAabb(childIndex);
+            AxisAlignedBoundingOctahedron parentAabo = parent.Bounds.GetAabo(childIndex);
 
             for (int i = 0; i < 4; ++i)
             {
                 int data = node.Data[i];
-                Aabb aabb = node.Bounds.GetAabb(i);
+                AxisAlignedBoundingOctahedron aabo = node.Bounds.GetAabo(i);
 
                 bool validData = node.IsChildValid(i);
 
-                bool validAabb = aabb.IsValid;
+                bool validAabb = aabo.IsValid;
 
                 if (validData != validAabb)
                 {
@@ -862,7 +949,7 @@ namespace Unity.Physics
                 {
                     if (parentIndex != 0)
                     {
-                        if (!parentAabb.Contains(aabb))
+                        if (!parentAabo.Contains(aabo))
                         {
                             throw new Exception("Parent AABB do not contains child AABB");
                         }

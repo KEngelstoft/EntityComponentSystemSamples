@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using Unity.Bounds;
 
 namespace Unity.Physics.Authoring
 {
@@ -29,9 +30,8 @@ namespace Unity.Physics.Authoring
                 {
                     if (leavesValid[l])
                     {
-                        Aabb aabb = nodes[nodeIndex].Bounds.GetAabb(l);
-                        float3 center = aabb.Center;
-                        OutputStream.Box(aabb.Extents, center, Quaternion.identity, color);
+                        AxisAlignedBoundingOctahedron aabo = nodes[nodeIndex].Bounds.GetAabo(l);
+                        OutputStream.Octahedron(aabo, color);
                     }
                 }
 
