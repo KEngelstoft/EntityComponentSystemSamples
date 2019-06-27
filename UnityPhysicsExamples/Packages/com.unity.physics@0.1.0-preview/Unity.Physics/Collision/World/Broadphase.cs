@@ -91,21 +91,21 @@ namespace Unity.Physics
 
             handle = JobHandle.CombineDependencies(adjustBodyIndices, adjustStaticBodyFilters);
 
-            var aabbs = new NativeArray<Aabb>(world.NumBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(world.NumBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var lookup = new NativeArray<PointAndIndex>(world.NumStaticBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             handle = new BuildStaticBodyDataJob
             {
                 RigidBodies = world.StaticBodies,
-                Aabbs = aabbs,
+                Aabos = aabos,
                 FiltersOut = new NativeSlice<CollisionFilter>(m_BodyFilters, world.NumDynamicBodies, world.NumStaticBodies),
                 Lookup = lookup,
                 Offset = world.NumDynamicBodies,
-                AabbMargin = world.CollisionTolerance / 2.0f // each body contributes half,
+                AaboMargin = world.CollisionTolerance / 2.0f // each body contributes half,
             }.ScheduleUnsafeIndex0(staticLayerChangeInfo.NumStaticBodiesArray, 32, handle);
 
             return m_StaticTree.BoundingVolumeHierarchy.ScheduleBuildJobs(
-                lookup, aabbs, m_BodyFilters, staticLayerChangeInfo.HaveStaticBodiesChangedArray, numThreadsHint, handle,
+                lookup, aabos, m_BodyFilters, staticLayerChangeInfo.HaveStaticBodiesChangedArray, numThreadsHint, handle,
                 m_StaticTree.NodeCount, m_StaticTree.Ranges, m_StaticTree.m_BranchCount);
         }
 
@@ -118,7 +118,7 @@ namespace Unity.Physics
         private JobHandle ScheduleDynamicTreeBuildJobs(ref PhysicsWorld world, float timeStep, int numThreadsHint, JobHandle inputDeps)
         {
             JobHandle handle = inputDeps;
-            var aabbs = new NativeArray<Aabb>(world.NumBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(world.NumBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var lookup = new NativeArray<PointAndIndex>(world.NumDynamicBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var shouldDoWork = new NativeArray<int>(1, Allocator.TempJob);
             shouldDoWork[0] = 1;
@@ -127,7 +127,7 @@ namespace Unity.Physics
             {
                 RigidBodies = world.DynamicBodies,
                 MotionVelocities = world.MotionVelocities,
-                Aabbs = aabbs,
+                Aabos = aabos,
                 FiltersOut = new NativeSlice<CollisionFilter>(m_BodyFilters, 0, world.NumDynamicBodies),
                 Lookup = lookup,
                 AabbMargin = world.CollisionTolerance / 2.0f, // each body contributes half
@@ -137,7 +137,7 @@ namespace Unity.Physics
             m_DynamicTree.NodeCount = world.NumDynamicBodies + BoundingVolumeHierarchy.Constants.MaxNumTreeBranches;
 
             handle = m_DynamicTree.BoundingVolumeHierarchy.ScheduleBuildJobs(
-                lookup, aabbs, m_BodyFilters, shouldDoWork, numThreadsHint, handle,
+                lookup, aabos, m_BodyFilters, shouldDoWork, numThreadsHint, handle,
                 m_DynamicTree.NodeCount, m_DynamicTree.Ranges, m_DynamicTree.m_BranchCount);
 
             return new DisposeArrayJob { Array = shouldDoWork }.Schedule(handle);
@@ -592,7 +592,7 @@ namespace Unity.Physics
             [ReadOnly] public float AabbMargin;
 
             public NativeArray<PointAndIndex> Lookup;
-            public NativeArray<Aabb> Aabbs;
+            public NativeArray<AxisAlignedBoundingOctahedron> Aabos;
             [NativeDisableContainerSafetyRestriction]
             public NativeSlice<CollisionFilter> FiltersOut;
 
@@ -617,7 +617,7 @@ namespace Unity.Physics
                     FiltersOut[index] = CollisionFilter.Zero;
                 }
 
-                Aabbs[index] = aabb;
+                Aabos[index] = aabb;
                 Lookup[index] = new BoundingVolumeHierarchy.PointAndIndex
                 {
                     Position = aabb.Center,
@@ -632,10 +632,10 @@ namespace Unity.Physics
         {
             [ReadOnly] public NativeSlice<RigidBody> RigidBodies;
             [ReadOnly] public int Offset;
-            [ReadOnly] public float AabbMargin;
+            [ReadOnly] public float AaboMargin;
 
             [NativeDisableParallelForRestriction]
-            public NativeArray<Aabb> Aabbs;
+            public NativeArray<AxisAlignedBoundingOctahedron> Aabos;
             public NativeArray<PointAndIndex> Lookup;
             
             [NativeDisableContainerSafetyRestriction]
@@ -651,7 +651,7 @@ namespace Unity.Physics
                 {
                     AxisAlignedBoundingOctahedron aabo = body.Collider->CalculateAxisAlignedBoundingOctahedron(body.WorldFromBody);
                     aabb = new Aabb(aabo);
-                    aabb.Expand(AabbMargin);
+                    aabb.Expand(AaboMargin);
 
                     FiltersOut[index] = RigidBodies[index].Collider->Filter;
                 }
@@ -663,7 +663,7 @@ namespace Unity.Physics
                     FiltersOut[index] = CollisionFilter.Default;
                 }
 
-                Aabbs[staticBodyIndex] = aabb;
+                Aabos[staticBodyIndex] = aabb;
                 Lookup[index] = new BoundingVolumeHierarchy.PointAndIndex
                 {
                     Position = aabb.Center,

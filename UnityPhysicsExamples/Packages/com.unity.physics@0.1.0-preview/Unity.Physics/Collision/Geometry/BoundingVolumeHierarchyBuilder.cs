@@ -413,7 +413,7 @@ namespace Unity.Physics
         }
 
         public unsafe JobHandle ScheduleBuildJobs(
-            NativeArray<PointAndIndex> points, NativeArray<Aabb> aabbs, NativeArray<CollisionFilter> bodyFilters, NativeArray<int> shouldDoWork,
+            NativeArray<PointAndIndex> points, NativeArray<AxisAlignedBoundingOctahedron> aabos, NativeArray<CollisionFilter> bodyFilters, NativeArray<int> shouldDoWork,
             int numThreadsHint, JobHandle inputDeps, int numNodes, NativeArray<Builder.Range> ranges, NativeArray<int> numBranches)
         {
             JobHandle handle = inputDeps;
@@ -438,7 +438,7 @@ namespace Unity.Physics
             handle = new BuildBranchesJob
             {
                 Points = points,
-                Aabbs = aabbs,
+                Aabos = aabos,
                 BodyFilters = bodyFilters,
                 Nodes = m_Nodes,
                 NodeFilters = m_NodeFilters,
@@ -450,7 +450,7 @@ namespace Unity.Physics
             // Note: This job also deallocates the aabbs and lookup arrays on completion
             handle = new FinalizeTreeJob
             {
-                Aabbs = aabbs,
+                Aabos = aabos,
                 Nodes = m_Nodes,
                 NodeFilters = m_NodeFilters,
                 LeafFilters = bodyFilters,
@@ -856,7 +856,7 @@ namespace Unity.Physics
         [BurstCompile]
         public unsafe struct BuildBranchesJob : IJobParallelForDefer
         {
-            [ReadOnly] public NativeArray<Aabb> Aabbs;
+            [ReadOnly] public NativeArray<AxisAlignedBoundingOctahedron> Aabos;
             [ReadOnly] public NativeArray<CollisionFilter> BodyFilters;
             [ReadOnly] public NativeArray<Builder.Range> Ranges;
             [ReadOnly] public NativeArray<int> BranchNodeOffsets;
@@ -874,7 +874,7 @@ namespace Unity.Physics
             {
                 Assert.IsTrue(BranchNodeOffsets[index] >= 0);
                 var bvh = new BoundingVolumeHierarchy(Nodes, NodeFilters);
-                int lastNode = bvh.BuildBranch(Points, Aabbs, Ranges[index], BranchNodeOffsets[index]);
+                int lastNode = bvh.BuildBranch(Points, Aabos, Ranges[index], BranchNodeOffsets[index]);
 
                 if (NodeFilters != null)
                 {
@@ -887,7 +887,7 @@ namespace Unity.Physics
         [BurstCompile]
         public unsafe struct FinalizeTreeJob : IJob
         {
-            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<Aabb> Aabbs;
+            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<AxisAlignedBoundingOctahedron> Aabos;
             [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<int> BranchNodeOffsets;
             [ReadOnly] public NativeArray<CollisionFilter> LeafFilters;
             [ReadOnly] public NativeArray<int> ShouldDoWork;
@@ -916,7 +916,7 @@ namespace Unity.Physics
                 }
 
                 var bvh = new BoundingVolumeHierarchy(Nodes, NodeFilters);
-                bvh.Refit(Aabbs, 1, minBranchNodeIndex);
+                bvh.Refit(Aabos, 1, minBranchNodeIndex);
 
                 if (NodeFilters != null)
                 {
