@@ -87,8 +87,20 @@ namespace Unity.Physics
         public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             float3 centerInWorld = math.transform(transform, Center);
-            float3 radius = new float3(Radius);
-            return new AABOTetrahedra(centerInWorld - radius, centerInWorld + radius);
+            AABOTetrahedra aabo = new AABOTetrahedra();
+
+            aabo.Min.x = centerInWorld.x - Radius;
+            aabo.Min.y = centerInWorld.y - Radius;
+            aabo.Min.z = centerInWorld.z - Radius;
+            aabo.Min.w = -(centerInWorld.x + centerInWorld.y + centerInWorld.z) - (Radius * math.sqrt(3));
+
+
+            aabo.Max.x = centerInWorld.x + Radius;
+            aabo.Max.y = centerInWorld.y + Radius;
+            aabo.Max.z = centerInWorld.z + Radius;
+            aabo.Max.w = -(centerInWorld.x + centerInWorld.y + centerInWorld.z) + (Radius * math.sqrt(3));
+
+            return aabo;
         }
 
         // Cast a ray against this collider.
