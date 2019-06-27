@@ -309,16 +309,15 @@ namespace Unity.Physics
         public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             BlobArray.Accessor<float3> vertices = ConvexHull.Vertices;
-            float3 min = math.rotate(transform, vertices[0]);
-            float3 max = min;
-            for (int i = 1; i < vertices.Length; ++i)
-            {
-                float3 v = math.rotate(transform, vertices[i]);
-                min = math.min(min, v);
-                max = math.max(max, v);
-            }
             float3 radius = new float3(ConvexHull.ConvexRadius);
-            return new AABOTetrahedra(min + transform.pos - radius, max + transform.pos + radius);
+            AABOTetrahedra aabo = new AABOTetrahedra();
+            aabo.Reset();
+            for (int i = 0; i < vertices.Length; ++i)
+            {
+                float3 v = math.transform(transform, vertices[i]);
+                aabo.Include(v );
+            }
+            return aabo;
         }
 
         // Cast a ray against this collider.
