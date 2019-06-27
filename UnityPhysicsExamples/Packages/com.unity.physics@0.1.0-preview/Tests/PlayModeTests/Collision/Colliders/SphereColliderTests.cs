@@ -115,7 +115,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             expected.Min = center - new float3(radius, radius, radius);
             expected.Max = center + new float3(radius, radius, radius);
 
-            Aabb actual = new Aabb(sphereCollider.Value.CalculateAxisAlignedBoundingOctahedron());
+            Aabb actual = new Aabb(sphereCollider.Value.CalculateAABOTetrahedra());
             TestUtils.AreEqual(expected.Min, actual.Min, 1e-3f);
             TestUtils.AreEqual(expected.Max, actual.Max, 1e-3f);
         }
@@ -137,7 +137,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             expected.Min = math.mul(rotation, center) + translation - new float3(radius, radius, radius);
             expected.Max = math.mul(rotation, center) + translation + new float3(radius, radius, radius);
 
-            Aabb actual = new Aabb(sphereCollider.Value.CalculateAxisAlignedBoundingOctahedron(new RigidTransform(rotation, translation)));
+            Aabb actual = new Aabb(sphereCollider.Value.CalculateAABOTetrahedra(new RigidTransform(rotation, translation)));
             TestUtils.AreEqual(expected.Min, actual.Min, 1e-3f);
             TestUtils.AreEqual(expected.Max, actual.Max, 1e-3f);
 

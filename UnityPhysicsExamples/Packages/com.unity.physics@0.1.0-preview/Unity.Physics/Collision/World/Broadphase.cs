@@ -22,7 +22,7 @@ namespace Unity.Physics
 
         public Tree StaticTree => m_StaticTree;
         public Tree DynamicTree => m_DynamicTree;
-        public AxisAlignedBoundingOctahedron Domain => AxisAlignedBoundingOctahedron.Union(m_StaticTree.BoundingVolumeHierarchy.Domain, m_DynamicTree.BoundingVolumeHierarchy.Domain);
+        public AABOTetrahedra Domain => AABOTetrahedra.Union(m_StaticTree.BoundingVolumeHierarchy.Domain, m_DynamicTree.BoundingVolumeHierarchy.Domain);
 
         public void Init()
         {
@@ -91,7 +91,7 @@ namespace Unity.Physics
 
             handle = JobHandle.CombineDependencies(adjustBodyIndices, adjustStaticBodyFilters);
 
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(world.NumBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(world.NumBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var lookup = new NativeArray<PointAndIndex>(world.NumStaticBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             handle = new BuildStaticBodyDataJob
@@ -118,7 +118,7 @@ namespace Unity.Physics
         private JobHandle ScheduleDynamicTreeBuildJobs(ref PhysicsWorld world, float timeStep, int numThreadsHint, JobHandle inputDeps)
         {
             JobHandle handle = inputDeps;
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(world.NumBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(world.NumBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var lookup = new NativeArray<PointAndIndex>(world.NumDynamicBodies, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var shouldDoWork = new NativeArray<int>(1, Allocator.TempJob);
             shouldDoWork[0] = 1;
@@ -130,7 +130,7 @@ namespace Unity.Physics
                 Aabos = aabos,
                 FiltersOut = new NativeSlice<CollisionFilter>(m_BodyFilters, 0, world.NumDynamicBodies),
                 Lookup = lookup,
-                AabbMargin = world.CollisionTolerance / 2.0f, // each body contributes half
+                AaboMargin = world.CollisionTolerance / 2.0f, // each body contributes half
                 TimeStep = timeStep
             }.Schedule(world.NumDynamicBodies, 32, handle);
 
@@ -589,10 +589,10 @@ namespace Unity.Physics
             [ReadOnly] public NativeSlice<RigidBody> RigidBodies;
             [ReadOnly] public NativeSlice<MotionVelocity> MotionVelocities;
             [ReadOnly] public float TimeStep;
-            [ReadOnly] public float AabbMargin;
+            [ReadOnly] public float AaboMargin;
 
             public NativeArray<PointAndIndex> Lookup;
-            public NativeArray<AxisAlignedBoundingOctahedron> Aabos;
+            public NativeArray<AABOTetrahedra> Aabos;
             [NativeDisableContainerSafetyRestriction]
             public NativeSlice<CollisionFilter> FiltersOut;
 
@@ -600,27 +600,26 @@ namespace Unity.Physics
             {
                 RigidBody body = RigidBodies[index];
 
-                Aabb aabb;
+                AABOTetrahedra aabo;
                 if (body.Collider != null)
                 {
                     MotionExpansion expansion = MotionVelocities[index].CalculateExpansion(TimeStep);
-                    aabb = expansion.ExpandAabb(new Aabb(body.Collider->CalculateAxisAlignedBoundingOctahedron(body.WorldFromBody)));
-                    aabb.Expand(AabbMargin);
+                    aabo = expansion.ExpandAabo(body.Collider->CalculateAABOTetrahedra(body.WorldFromBody));
+                    aabo.Expand(AaboMargin);
 
                     FiltersOut[index] = body.Collider->Filter;
                 }
                 else
                 {
-                    aabb.Min = body.WorldFromBody.pos;
-                    aabb.Max = body.WorldFromBody.pos;
+                    aabo = new AABOTetrahedra(body.WorldFromBody.pos);
 
                     FiltersOut[index] = CollisionFilter.Zero;
                 }
 
-                Aabos[index] = aabb;
+                Aabos[index] = aabo;
                 Lookup[index] = new BoundingVolumeHierarchy.PointAndIndex
                 {
-                    Position = aabb.Center,
+                    Position = aabo.Center.xyz,
                     Index = index
                 };
             }
@@ -635,7 +634,7 @@ namespace Unity.Physics
             [ReadOnly] public float AaboMargin;
 
             [NativeDisableParallelForRestriction]
-            public NativeArray<AxisAlignedBoundingOctahedron> Aabos;
+            public NativeArray<AABOTetrahedra> Aabos;
             public NativeArray<PointAndIndex> Lookup;
             
             [NativeDisableContainerSafetyRestriction]
@@ -646,27 +645,25 @@ namespace Unity.Physics
                 int staticBodyIndex = index + Offset;
                 RigidBody body = RigidBodies[index];
 
-                Aabb aabb;
+                AABOTetrahedra aabo;
                 if (body.Collider != null)
                 {
-                    AxisAlignedBoundingOctahedron aabo = body.Collider->CalculateAxisAlignedBoundingOctahedron(body.WorldFromBody);
-                    aabb = new Aabb(aabo);
-                    aabb.Expand(AaboMargin);
+                    aabo = body.Collider->CalculateAABOTetrahedra(body.WorldFromBody);
+                    aabo.Expand(AaboMargin);
 
                     FiltersOut[index] = RigidBodies[index].Collider->Filter;
                 }
                 else
                 {
-                    aabb.Min = body.WorldFromBody.pos;
-                    aabb.Max = body.WorldFromBody.pos;
+                    aabo = new AABOTetrahedra(body.WorldFromBody.pos);
 
                     FiltersOut[index] = CollisionFilter.Default;
                 }
 
-                Aabos[staticBodyIndex] = aabb;
+                Aabos[staticBodyIndex] = aabo;
                 Lookup[index] = new BoundingVolumeHierarchy.PointAndIndex
                 {
-                    Position = aabb.Center,
+                    Position = aabo.Center.xyz,
                     Index = staticBodyIndex
                 };
             }

@@ -10,10 +10,10 @@ namespace Unity.Physics
         // Bounding octahedron
 
         // Calculate an axis aligned bounding octahedron around the object, in local space.
-        AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron();
+        AABOTetrahedra CalculateAABOTetrahedra();
 
         // Calculate an axis aligned bounding octahedron around the object, in the given space.
-        AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform);
+        AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform);
 
         // Cast ray
 

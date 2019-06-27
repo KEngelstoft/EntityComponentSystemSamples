@@ -56,14 +56,14 @@ namespace Unity.Physics
 
         #region ICollidable implementation
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
-            return CollisionWorld.CalculateAxisAlignedBoundingOctahedron();
+            return CollisionWorld.CalculateAABOTetrahedra();
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
-            return CollisionWorld.CalculateAxisAlignedBoundingOctahedron(transform);
+            return CollisionWorld.CalculateAABOTetrahedra(transform);
         }
 
         // Cast ray

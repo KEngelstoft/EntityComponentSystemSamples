@@ -111,18 +111,18 @@ namespace Unity.Physics
             }
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
             float3 radius = new float3(Radius);
-            return new AxisAlignedBoundingOctahedron(math.min(m_Vertex0, m_Vertex1) - radius, math.max(m_Vertex0, m_Vertex1) + radius);
+            return new AABOTetrahedra(math.min(m_Vertex0, m_Vertex1) - radius, math.max(m_Vertex0, m_Vertex1) + radius);
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             float3 v0 = math.transform(transform, m_Vertex0);
             float3 v1 = math.transform(transform, m_Vertex1);
             float3 radius = new float3(Radius);
-            return new AxisAlignedBoundingOctahedron(math.min(v0, v1) - radius, math.max(v0, v1) + radius);
+            return new AABOTetrahedra(math.min(v0, v1) - radius, math.max(v0, v1) + radius);
         }
 
         // Cast a ray against this collider.

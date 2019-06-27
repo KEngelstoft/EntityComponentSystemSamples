@@ -134,11 +134,11 @@ namespace Unity.Physics
         {
             // Create inputs
             var points = new NativeArray<BoundingVolumeHierarchy.PointAndIndex>(NumChildren, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(NumChildren, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(NumChildren, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             for (int i = 0; i < NumChildren; ++i)
             {
                 points[i] = new BoundingVolumeHierarchy.PointAndIndex { Position = Children[i].CompoundFromChild.pos, Index = i };
-                AxisAlignedBoundingOctahedron aabo = Children[i].Collider->CalculateAxisAlignedBoundingOctahedron(Children[i].CompoundFromChild);
+                AABOTetrahedra aabo = Children[i].Collider->CalculateAABOTetrahedra(Children[i].CompoundFromChild);
                 aabos[i] = aabo;
             }
 
@@ -251,15 +251,15 @@ namespace Unity.Physics
         public CollisionFilter Filter { get => m_Header.Filter; set => m_Header.Filter = value; }
         public MassProperties MassProperties { get; private set; }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
-            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
+            return CalculateAABOTetrahedra(RigidTransform.identity);
         }
 
-        public unsafe AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public unsafe AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             // TODO: Store a convex hull wrapping all the children, and use that to calculate tighter bounds?
-            AxisAlignedBoundingOctahedron aabo = Math.TransformAabo(transform, BoundingVolumeHierarchy.Domain);
+            AABOTetrahedra aabo = Math.TransformAabo(transform, BoundingVolumeHierarchy.Domain);
             return aabo;
         }
 

@@ -123,7 +123,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             expectedAabb.Min = math.min(p0, p1) - new float3(radius);
             expectedAabb.Max = math.max(p0, p1) + new float3(radius);
 
-            Aabb aabb = new Aabb(capsuleCollider.Value.CalculateAxisAlignedBoundingOctahedron());
+            Aabb aabb = new Aabb(capsuleCollider.Value.CalculateAABOTetrahedra());
             TestUtils.AreEqual(expectedAabb.Min, aabb.Min, 1e-3f);
             TestUtils.AreEqual(expectedAabb.Max, aabb.Max, 1e-3f);
         }
@@ -149,7 +149,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             expectedAabb.Min = math.min(p0Transformed, p1Transformed) - new float3(radius);
             expectedAabb.Max = math.max(p0Transformed, p1Transformed) + new float3(radius);
 
-            Aabb aabb = new Aabb(capsuleCollider.Value.CalculateAxisAlignedBoundingOctahedron(new RigidTransform(rotation, translation)));
+            Aabb aabb = new Aabb(capsuleCollider.Value.CalculateAABOTetrahedra(new RigidTransform(rotation, translation)));
             TestUtils.AreEqual(expectedAabb.Min, aabb.Min, 1e-3f);
             TestUtils.AreEqual(expectedAabb.Max, aabb.Max, 1e-3f);
         }

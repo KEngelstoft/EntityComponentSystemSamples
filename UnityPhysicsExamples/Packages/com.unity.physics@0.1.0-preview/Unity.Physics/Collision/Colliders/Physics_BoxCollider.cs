@@ -195,12 +195,12 @@ namespace Unity.Physics
             AngularExpansionFactor = math.length(m_Size * 0.5f - ConvexRadius)
         };
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
-            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
+            return CalculateAABOTetrahedra(RigidTransform.identity);
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             float3 centerInB = math.transform(transform, m_Center);
 
@@ -210,7 +210,7 @@ namespace Unity.Physics
             float3 z = math.mul(worldFromBox, new float3(0, 0, m_Size.z * 0.5f));
             float3 halfExtentsInB = math.abs(x) + math.abs(y) + math.abs(z);
 
-            AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+            AABOTetrahedra aabo = new AABOTetrahedra();
             aabo.Reset();
             aabo.Include(centerInB - halfExtentsInB);
             aabo.Include(centerInB + halfExtentsInB);

@@ -849,7 +849,7 @@ namespace Unity.Physics
 
                     float3x4 quadVertices = new float3x4(vertices[vis[0]], vertices[vis[1]], vertices[vis[2]], vertices[vis[3]]);
                     
-                    AxisAlignedBoundingOctahedron quadAabo = new AxisAlignedBoundingOctahedron();
+                    AABOTetrahedra quadAabo = new AABOTetrahedra();
                     quadAabo.Reset();
                     quadAabo.Include(vertices[vis[0]]);
                     quadAabo.Include(vertices[vis[1]]);

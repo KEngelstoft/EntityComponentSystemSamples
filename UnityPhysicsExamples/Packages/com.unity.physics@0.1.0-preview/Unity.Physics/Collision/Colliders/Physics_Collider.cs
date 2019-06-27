@@ -256,38 +256,38 @@ namespace Unity.Physics
         #region ICollidable
 
         // Calculate a bounding box around this collider.
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
-            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
+            return CalculateAABOTetrahedra(RigidTransform.identity);
         }
 
         // Calculate a bounding box around this collider, at the given transform.
-        public unsafe AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public unsafe AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             fixed (Collider* collider = &this)
             {
                 switch (collider->Type)
                 {
                     case ColliderType.Convex:
-                        return ((ConvexCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
+                        return ((ConvexCollider*)collider)->CalculateAABOTetrahedra(transform);
                     case ColliderType.Sphere:
-                        return ((SphereCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
+                        return ((SphereCollider*)collider)->CalculateAABOTetrahedra(transform);
                     case ColliderType.Capsule:
-                        return ((CapsuleCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
+                        return ((CapsuleCollider*)collider)->CalculateAABOTetrahedra(transform);
                     case ColliderType.Triangle:
                     case ColliderType.Quad:
-                        return ((PolygonCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
+                        return ((PolygonCollider*)collider)->CalculateAABOTetrahedra(transform);
                     case ColliderType.Box:
-                        return ((BoxCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
+                        return ((BoxCollider*)collider)->CalculateAABOTetrahedra(transform);
                     case ColliderType.Cylinder:
-                        return ((CylinderCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
+                        return ((CylinderCollider*)collider)->CalculateAABOTetrahedra(transform);
                     case ColliderType.Mesh:
-                        return ((MeshCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
+                        return ((MeshCollider*)collider)->CalculateAABOTetrahedra(transform);
                     case ColliderType.Compound:
-                        return ((CompoundCollider*)collider)->CalculateAxisAlignedBoundingOctahedron(transform);
+                        return ((CompoundCollider*)collider)->CalculateAABOTetrahedra(transform);
                     default:
                         //Assert.IsTrue(Enum.IsDefined(typeof(ColliderType), collider->Type));
-                        AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+                        AABOTetrahedra aabo = new AABOTetrahedra();
                         aabo.Reset();
                         return aabo;
                 }

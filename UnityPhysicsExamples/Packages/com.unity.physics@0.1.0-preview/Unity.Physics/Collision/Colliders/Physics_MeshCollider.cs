@@ -15,7 +15,7 @@ namespace Unity.Physics
     public struct MeshCollider : ICompositeCollider
     {
         private ColliderHeader m_Header;
-        private AxisAlignedBoundingOctahedron m_Aabo;
+        private AABOTetrahedra m_Aabo;
         public Mesh Mesh;
 
         // followed by variable sized mesh data
@@ -59,7 +59,7 @@ namespace Unity.Physics
             {
                 // Prepare data for BVH
                 var points = new NativeArray<BoundingVolumeHierarchy.PointAndIndex>(primitives.Count, Allocator.Temp);
-                var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(primitives.Count, Allocator.Temp);
+                var aabos = new NativeArray<AABOTetrahedra>(primitives.Count, Allocator.Temp);
 
                 for (int i = 0; i < primitives.Count; i++)
                 {
@@ -71,14 +71,14 @@ namespace Unity.Physics
                         continue;
                     }
 
-                    aabos[i] = new AxisAlignedBoundingOctahedron();
+                    aabos[i] = new AABOTetrahedra();
                     aabos[i].Reset();
                     aabos[i].Include(p.Vertices.c0);
                     aabos[i].Include(p.Vertices.c1);
                     aabos[i].Include(p.Vertices.c2);
                     aabos[i].Include(p.Vertices.c3);
 
-                    //AxisAlignedBoundingOctahedron a = new AxisAlignedBoundingOctahedron(p.Vertices,0,p.)
+                    //AABOTetrahedra a = new AABOTetrahedra(p.Vertices,0,p.)
                     //aabbs[i] = Aabb.CreateFromPoints(p.Vertices);
                     var c = aabos[i].Center;
                     var center = new float3(c.x, c.y, c.z);
@@ -175,12 +175,12 @@ namespace Unity.Physics
             }
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
             return m_Aabo;
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             // TODO: Store a convex hull wrapping the mesh, and use that to calculate tighter bounds?
             return Math.TransformAabo(transform, m_Aabo);

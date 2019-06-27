@@ -17,7 +17,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
 {
     public class BoundingVolumeHierarchyBuilderTests
     {
-        public void InitInputArrays(NativeArray<PointAndIndex> points, NativeArray<AxisAlignedBoundingOctahedron> aabbs, NativeArray<CollisionFilter> filters)
+        public void InitInputArrays(NativeArray<PointAndIndex> points, NativeArray<AABOTetrahedra> aabbs, NativeArray<CollisionFilter> filters)
         {
             Random.InitState(1234);
 
@@ -34,13 +34,13 @@ namespace Unity.Physics.Tests.Collision.Geometry
                 points[i] = new PointAndIndex { Position = pos, Index = i };
 
                 float3 radius = new float3(Random.Range(radiusRangeMin, radiusRangeMax));
-                aabbs[i] = new AxisAlignedBoundingOctahedron(pos - radius, pos + radius);
+                aabbs[i] = new AABOTetrahedra(pos - radius, pos + radius);
 
                 filters[i] = CollisionFilter.Default;
             }
         }
 
-        public void InitInputWithCopyArrays(NativeArray<PointAndIndex> points, NativeArray<AxisAlignedBoundingOctahedron> aabos, NativeArray<CollisionFilter> filters)
+        public void InitInputWithCopyArrays(NativeArray<PointAndIndex> points, NativeArray<AABOTetrahedra> aabos, NativeArray<CollisionFilter> filters)
         {
             Random.InitState(1234);
 
@@ -57,11 +57,11 @@ namespace Unity.Physics.Tests.Collision.Geometry
                 points[i] = new PointAndIndex { Position = pos, Index = i };
 
                 float3 radius = new float3(Random.Range(radiusRangeMin, radiusRangeMax));
-                aabos[i] = new AxisAlignedBoundingOctahedron(pos - radius, pos + radius);
+                aabos[i] = new AABOTetrahedra(pos - radius, pos + radius);
 
                 points[i + 1] = new PointAndIndex { Position = pos, Index = i + 1 };
 
-                aabos[i + 1] = new AxisAlignedBoundingOctahedron(pos - radius, pos + radius);
+                aabos[i + 1] = new AABOTetrahedra(pos - radius, pos + radius);
 
                 filters[i] = new CollisionFilter
                 {
@@ -86,7 +86,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
         {
             int numNodes = elementCount / 3 * 2 + 4;
             var points = new NativeArray<PointAndIndex>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var filters = new NativeArray<CollisionFilter>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             InitInputArrays(points, aabos, filters);
@@ -110,7 +110,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             int numNodes = elementCount + Constants.MaxNumTreeBranches;
 
             var points = new NativeArray<PointAndIndex>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var filters = new NativeArray<CollisionFilter>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             InitInputArrays(points, aabos, filters);
 
@@ -150,7 +150,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             int numNodes = elementCount + Constants.MaxNumTreeBranches;
 
             var points = new NativeArray<PointAndIndex>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var filters = new NativeArray<CollisionFilter>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             InitInputArrays(points, aabos, filters);
 
@@ -217,7 +217,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             int numNodes = elementCount + Constants.MaxNumTreeBranches;
 
             var points = new NativeArray<PointAndIndex>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var filters = new NativeArray<CollisionFilter>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var nodefilters = new NativeArray<CollisionFilter>(numNodes, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var branchCount = new NativeArray<int>(1, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -342,7 +342,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             int numNodes = elementCount + Constants.MaxNumTreeBranches;
 
             var points = new NativeArray<PointAndIndex>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var bodyFilters = new NativeArray<CollisionFilter>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             InitInputWithCopyArrays(points, aabos, bodyFilters);
 
@@ -436,7 +436,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             elementCount *= 2;
             int numNodes = elementCount / 3 * 2 + 4;
             var points = new NativeArray<PointAndIndex>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            var aabos = new NativeArray<AxisAlignedBoundingOctahedron>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var aabos = new NativeArray<AABOTetrahedra>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var filters = new NativeArray<CollisionFilter>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             InitInputWithCopyArrays(points, aabos, filters);
@@ -525,7 +525,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
             elementCount *= 2;
             int numNodes = elementCount / 3 * 2 + 4;
             var points = new NativeArray<PointAndIndex>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-            var aabbs = new NativeArray<AxisAlignedBoundingOctahedron>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var aabbs = new NativeArray<AABOTetrahedra>(elementCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var filters = new NativeArray<CollisionFilter>(elementCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             // Override filter data with default filters.

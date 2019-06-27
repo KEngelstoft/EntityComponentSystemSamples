@@ -208,7 +208,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             };
 
             var collider = PolygonCollider.CreateTriangle(vertices[0], vertices[1], vertices[2]);
-            Aabb aabb = new Aabb(collider.Value.CalculateAxisAlignedBoundingOctahedron());
+            Aabb aabb = new Aabb(collider.Value.CalculateAABOTetrahedra());
 
             Aabb expected = new Aabb()
             {
@@ -234,7 +234,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
                 new float3(-3.4f, 1.2f, 1.0f)
             };
             var collider = PolygonCollider.CreateQuad(quadVertices[0], quadVertices[1], quadVertices[2], quadVertices[3]);
-            Aabb aabb = new Aabb(collider.Value.CalculateAxisAlignedBoundingOctahedron());
+            Aabb aabb = new Aabb(collider.Value.CalculateAABOTetrahedra());
             Aabb expected = Aabb.CreateFromPoints(new float3x4(quadVertices[0], quadVertices[1], quadVertices[2], quadVertices[3]));
 
             TestUtils.AreEqual(expected.Min, aabb.Min, 1e-3f);
@@ -258,7 +258,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             quaternion rotation = quaternion.AxisAngle(math.normalize(new float3(1.1f, 10.1f, -3.4f)), 78.0f);
 
             var collider = PolygonCollider.CreateTriangle(vertices[0], vertices[1], vertices[2]);
-            Aabb aabb = new Aabb(collider.Value.CalculateAxisAlignedBoundingOctahedron(new RigidTransform(rotation, translation)));
+            Aabb aabb = new Aabb(collider.Value.CalculateAABOTetrahedra(new RigidTransform(rotation, translation)));
 
             for (int i = 0; i < 3; ++i)
             {
@@ -293,7 +293,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             quaternion rotation = quaternion.AxisAngle(math.normalize(new float3(11.1f, 10.1f, -3.4f)), 178.0f);
 
             var collider = PolygonCollider.CreateQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
-            Aabb aabb = new Aabb(collider.Value.CalculateAxisAlignedBoundingOctahedron(new RigidTransform(rotation, translation)));
+            Aabb aabb = new Aabb(collider.Value.CalculateAABOTetrahedra(new RigidTransform(rotation, translation)));
 
             for (int i = 0; i < 4; ++i)
             {

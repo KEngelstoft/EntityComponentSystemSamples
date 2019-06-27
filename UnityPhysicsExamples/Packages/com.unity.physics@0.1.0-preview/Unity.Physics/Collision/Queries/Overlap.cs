@@ -13,7 +13,7 @@ namespace Unity.Physics
 
     public struct OverlapAaboInput
     {
-        public AxisAlignedBoundingOctahedron Aabo;
+        public AABOTetrahedra Aabo;
         public CollisionFilter Filter;
     }
 

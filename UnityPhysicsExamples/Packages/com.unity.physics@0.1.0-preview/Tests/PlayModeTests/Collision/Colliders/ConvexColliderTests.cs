@@ -241,7 +241,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             var collider = ConvexCollider.Create(points, convexRadius);
             points.Dispose();
 
-            Aabb actualAabb = new Aabb(collider.Value.CalculateAxisAlignedBoundingOctahedron());
+            Aabb actualAabb = new Aabb(collider.Value.CalculateAABOTetrahedra());
             TestUtils.AreEqual(expectedAabb.Min, actualAabb.Min, 1e-3f);
             TestUtils.AreEqual(expectedAabb.Max, actualAabb.Max, 1e-3f);
         }
@@ -282,7 +282,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
             var collider = ConvexCollider.Create(points, convexRadius);
             points.Dispose();
 
-            Aabb actualAabb = new Aabb(collider.Value.CalculateAxisAlignedBoundingOctahedron(new RigidTransform(rotation, translation)));
+            Aabb actualAabb = new Aabb(collider.Value.CalculateAABOTetrahedra(new RigidTransform(rotation, translation)));
 
             TestUtils.AreEqual(expectedAabb.Min, actualAabb.Min, 1e-3f);
             TestUtils.AreEqual(expectedAabb.Max, actualAabb.Max, 1e-3f);

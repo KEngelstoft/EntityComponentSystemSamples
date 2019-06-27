@@ -79,10 +79,10 @@ namespace Unity.Physics.Tests.Dynamics.Motion
                 Linear = new float3(2.0f, 3.0f, 4.0f),
                 Uniform = 5.0f
             };
-            var aabb = motionExpansion.ExpandAabb(new Aabb() { Min = new float3(-10.0f, -10.0f, -10.0f), Max = new float3(10.0f, 10.0f, 10.0f) });
+            var aabo = motionExpansion.ExpandAabo(new Bounds.AABOTetrahedra(new float3(-10.0f, -10.0f, -10.0f), new float3(10.0f, 10.0f, 10.0f)));
 
-            Assert.AreEqual(new float3(-15.0f, -15.0f, -15.0f), aabb.Min);
-            Assert.AreEqual(new float3(17.0f, 18.0f, 19.0f), aabb.Max);
+            Assert.AreEqual(new float4(-15.0f, -15.0f, -15.0f, 0), aabo.Min);
+            Assert.AreEqual(new float4(17.0f, 18.0f, 19.0f, 0), aabo.Max);
         }
     }
 }

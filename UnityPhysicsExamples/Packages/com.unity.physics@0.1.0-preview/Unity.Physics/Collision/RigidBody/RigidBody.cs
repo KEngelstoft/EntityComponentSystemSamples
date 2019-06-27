@@ -31,22 +31,22 @@ namespace Unity.Physics
 
         #region ICollidable implementation
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
             if (Collider != null)
             {
-                return Collider->CalculateAxisAlignedBoundingOctahedron(WorldFromBody);
+                return Collider->CalculateAABOTetrahedra(WorldFromBody);
             }
-            return new AxisAlignedBoundingOctahedron(WorldFromBody.pos, WorldFromBody.pos);
+            return new AABOTetrahedra(WorldFromBody.pos, WorldFromBody.pos);
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             if (Collider != null)
             {
-                return Collider->CalculateAxisAlignedBoundingOctahedron(math.mul(transform, WorldFromBody));
+                return Collider->CalculateAABOTetrahedra(math.mul(transform, WorldFromBody));
             }
-            return new AxisAlignedBoundingOctahedron(WorldFromBody.pos, WorldFromBody.pos);
+            return new AABOTetrahedra(WorldFromBody.pos, WorldFromBody.pos);
         }
 
         public bool CastRay(RaycastInput input) => QueryWrappers.RayCast(ref this, input);

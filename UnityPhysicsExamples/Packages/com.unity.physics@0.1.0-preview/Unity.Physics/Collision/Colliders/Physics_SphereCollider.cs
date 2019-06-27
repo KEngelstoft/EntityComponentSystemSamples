@@ -78,17 +78,17 @@ namespace Unity.Physics
             AngularExpansionFactor = 0.0f
         };
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
             float3 radius = new float3(Radius);
-            return new AxisAlignedBoundingOctahedron(Center - radius, Center + radius);
+            return new AABOTetrahedra(Center - radius, Center + radius);
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             float3 centerInWorld = math.transform(transform, Center);
             float3 radius = new float3(Radius);
-            return new AxisAlignedBoundingOctahedron(centerInWorld - radius, centerInWorld + radius);
+            return new AABOTetrahedra(centerInWorld - radius, centerInWorld + radius);
         }
 
         // Cast a ray against this collider.

@@ -15,7 +15,7 @@ namespace Unity.Physics
         private readonly unsafe Node* m_Nodes;
         private readonly unsafe CollisionFilter* m_NodeFilters;
 
-        public unsafe AxisAlignedBoundingOctahedron Domain => m_Nodes[1].Bounds.GetCompoundAabo();
+        public unsafe AABOTetrahedra Domain => m_Nodes[1].Bounds.GetCompoundAabo();
 
         public unsafe BoundingVolumeHierarchy(Node* nodes, CollisionFilter* nodeFilters)
         {
@@ -433,7 +433,7 @@ namespace Unity.Physics
             float3 aabbExtents;
             Ray aabbRay;
             {
-                AxisAlignedBoundingOctahedron aabo = input.Collider->CalculateAxisAlignedBoundingOctahedron(new RigidTransform(input.Orientation, input.Start));
+                AABOTetrahedra aabo = input.Collider->CalculateAABOTetrahedra(new RigidTransform(input.Orientation, input.Start));
                 Aabb aabb = new Aabb(aabo);
                 aabbExtents = aabb.Extents;
                 aabbRay = input.Ray;
@@ -557,7 +557,7 @@ namespace Unity.Physics
             int* stack = binaryStack;
             *stack++ = 1;
 
-            AxisAlignedBoundingOctahedron aabo = input.Collider->CalculateAxisAlignedBoundingOctahedron(input.Transform);
+            AABOTetrahedra aabo = input.Collider->CalculateAABOTetrahedra(input.Transform);
             AABO4 aaboT;
             (&aaboT)->SetAllAabos(aabo);
             float4 maxDistanceSquared = new float4(collector.MaxFraction * collector.MaxFraction);

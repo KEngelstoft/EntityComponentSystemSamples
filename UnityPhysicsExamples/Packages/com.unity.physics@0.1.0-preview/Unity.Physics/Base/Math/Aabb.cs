@@ -19,16 +19,16 @@ namespace Unity.Physics
         public float3 Center => (Max + Min) * 0.5f;
         public bool IsValid => math.all(Min <= Max);
 
-        public Aabb(Unity.Bounds.AxisAlignedBoundingOctahedron aabo)
+        public Aabb(Unity.Bounds.AABOTetrahedra aabo)
         {
-            Unity.Bounds.AxisAlignedBoundingBox aabb = aabo.CircumscribedAABB;
+            Unity.Bounds.AABB aabb = aabo.CircumscribedAABB;
             var mn = aabo.Min;
             var mx = aabo.Max;
             Min = new float3(mn.x, mn.y, mn.z);
             Max = new float3(mx.x, mx.y, mx.z);
         }
 
-        public Aabb(Unity.Bounds.AxisAlignedBoundingBox aabb)
+        public Aabb(Unity.Bounds.AABB aabb)
         {
             Min = aabb.Min;
             Max = aabb.Max;
@@ -125,7 +125,7 @@ namespace Unity.Physics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AxisAlignedBoundingOctahedron TransformAabo(RigidTransform transform, AxisAlignedBoundingOctahedron aabo)
+        public static AABOTetrahedra TransformAabo(RigidTransform transform, AABOTetrahedra aabo)
         {
             float4 halfExtentsInA = aabo.Size * 0.5f;
             float3 x = math.rotate(transform.rot, new float3(halfExtentsInA.x, 0, 0));
@@ -138,7 +138,7 @@ namespace Unity.Physics
 
             var Min = centerInB - halfExtentsInB;
             var Max = centerInB + halfExtentsInB;
-            return new AxisAlignedBoundingOctahedron(Min, Max);
+            return new AABOTetrahedra(Min, Max);
         }
 
         // Transform an AABB into another space, expanding it as needed.
@@ -162,9 +162,9 @@ namespace Unity.Physics
 
         // Transform an AABO into another space, expanding it as needed.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static AxisAlignedBoundingOctahedron TransformAabo(MTransform transform, AxisAlignedBoundingOctahedron aabo)
+        public static AABOTetrahedra TransformAabo(MTransform transform, AABOTetrahedra aabo)
         {
-            AxisAlignedBoundingOctahedron transformedAabo = new AxisAlignedBoundingOctahedron();
+            AABOTetrahedra transformedAabo = new AABOTetrahedra();
             transformedAabo.Reset();
 
             // Generate convex hull

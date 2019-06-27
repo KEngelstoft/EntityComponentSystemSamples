@@ -42,7 +42,7 @@ namespace Unity.Physics
             float3 s = scale ?? new float3(1);
 
             // Build the points' bounding octahedron and validate them
-            var domain = new AxisAlignedBoundingOctahedron();
+            var domain = new AABOTetrahedra();
             foreach (var point in points)
             {
                 if (math.any(!math.isfinite(point)))
@@ -301,12 +301,12 @@ namespace Unity.Physics
         public Material Material { get => m_Header.Material; set => m_Header.Material = value; }
         public MassProperties MassProperties { get; private set; }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
-            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
+            return CalculateAABOTetrahedra(RigidTransform.identity);
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             BlobArray.Accessor<float3> vertices = ConvexHull.Vertices;
             float3 min = math.rotate(transform, vertices[0]);
@@ -318,7 +318,7 @@ namespace Unity.Physics
                 max = math.max(max, v);
             }
             float3 radius = new float3(ConvexHull.ConvexRadius);
-            return new AxisAlignedBoundingOctahedron(min + transform.pos - radius, max + transform.pos + radius);
+            return new AABOTetrahedra(min + transform.pos - radius, max + transform.pos + radius);
         }
 
         // Cast a ray against this collider.

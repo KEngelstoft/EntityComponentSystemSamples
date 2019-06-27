@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Mathematics;
 using static Unity.Physics.Math;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -323,10 +324,10 @@ namespace Unity.Physics
             MTransform bFromWorld = Inverse(worldFromB);
             MTransform bFromA = Mul(bFromWorld, worldFromA);
             var transform = new RigidTransform(new quaternion(bFromA.Rotation), bFromA.Translation); // TODO: avoid this conversion to and back from float3x3
-            Aabb aabbAinB = expansion.ExpandAabb(new Aabb(convexColliderA->CalculateAxisAlignedBoundingOctahedron(transform)));
+            AABOTetrahedra aaboAinB = expansion.ExpandAabo(convexColliderA->CalculateAABOTetrahedra(transform));
 
             // Do the midphase query and build manifolds for any overlapping leaf colliders
-            var input = new OverlapAabbInput { Aabb = aabbAinB, Filter = convexColliderA->Filter };
+            var input = new OverlapAabbInput { Aabb = new Aabb(aaboAinB), Filter = convexColliderA->Filter };
             var collector = new ConvexCompositeOverlapCollector(
                 context,
                 convexColliderA, convexKeyA, compositeColliderB,

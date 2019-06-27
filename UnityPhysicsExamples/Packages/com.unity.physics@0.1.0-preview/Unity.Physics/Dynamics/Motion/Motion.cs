@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Unity.Mathematics;
+using Unity.Bounds;
 
 namespace Unity.Physics
 {
@@ -132,12 +133,12 @@ namespace Unity.Physics
             Uniform = 0.0f
         };
 
-        // Expand an AABB
+        // Expand an AABOTetrahedra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Aabb ExpandAabb(Aabb aabb) => new Aabb
+        public AABOTetrahedra ExpandAabo(AABOTetrahedra aabo) => new AABOTetrahedra
         {
-            Max = math.max(aabb.Max, aabb.Max + Linear) + Uniform,
-            Min = math.min(aabb.Min, aabb.Min + Linear) - Uniform
+            Max = math.max(aabo.Max, aabo.Max + Linear.xyzz) + Uniform, // TODO what to do in w?
+            Min = math.min(aabo.Min, aabo.Min + Linear.xyzz) - Uniform
         };
     }
 }

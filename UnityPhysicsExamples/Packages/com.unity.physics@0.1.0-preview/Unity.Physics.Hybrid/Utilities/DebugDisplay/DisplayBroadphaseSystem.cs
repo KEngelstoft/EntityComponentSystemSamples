@@ -30,7 +30,7 @@ namespace Unity.Physics.Authoring
                 {
                     if (leavesValid[l])
                     {
-                        AxisAlignedBoundingOctahedron aabo = nodes[nodeIndex].Bounds.GetAabo(l);
+                        AABOTetrahedra aabo = nodes[nodeIndex].Bounds.GetAabo(l);
                         OutputStream.Octahedron(aabo, color);
                     }
                 }

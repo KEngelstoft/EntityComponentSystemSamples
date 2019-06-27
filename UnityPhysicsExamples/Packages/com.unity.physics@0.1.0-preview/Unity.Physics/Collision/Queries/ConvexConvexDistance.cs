@@ -554,23 +554,23 @@ namespace Unity.Physics
         }
 
         // Returns an AABO containing the CSO in A-space
-        private static unsafe AxisAlignedBoundingOctahedron GetSupportingAabo(
+        private static unsafe AABOTetrahedra GetSupportingAabo(
             float3* verticesA, int numVerticesA, float3* verticesB, int numVerticesB, MTransform aFromB)
         {
-            AxisAlignedBoundingOctahedron aaboA = new AxisAlignedBoundingOctahedron(verticesA[0]);
+            AABOTetrahedra aaboA = new AABOTetrahedra(verticesA[0]);
             for (int i = 1; i < numVerticesA; i++)
             {
                 aaboA.Include(verticesA[i]);
             }
 
-            AxisAlignedBoundingOctahedron aaboB = new AxisAlignedBoundingOctahedron(verticesB[0]);
+            AABOTetrahedra aaboB = new AABOTetrahedra(verticesB[0]);
             for (int i = 1; i < numVerticesB; i++)
             {
                 aaboB.Include(verticesB[i]);
             }
 
-            AxisAlignedBoundingOctahedron aabbBinA = Math.TransformAabo(aFromB, aaboB);
-            return new AxisAlignedBoundingOctahedron { Min = aaboA.Min - aabbBinA.Max, Max = aaboA.Max - aabbBinA.Min };
+            AABOTetrahedra aabbBinA = Math.TransformAabo(aFromB, aaboB);
+            return new AABOTetrahedra { Min = aaboA.Min - aabbBinA.Max, Max = aaboA.Max - aabbBinA.Min };
         }
     }
 }

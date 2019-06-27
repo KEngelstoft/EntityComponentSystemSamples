@@ -111,12 +111,12 @@ namespace Unity.Physics
 
         #region ICollidable implementation
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
             return Broadphase.Domain;
         }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             return TransformAabo(transform, Broadphase.Domain);
         }

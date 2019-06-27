@@ -814,7 +814,7 @@ namespace Unity.Physics.Tests.Collision.Queries
                 {
                     aabb.Include(vertices[i]);
                 }
-                cvx.Hull.IntegerSpaceAabo = new AxisAlignedBoundingOctahedron(aabb.Min,aabb.Max);
+                cvx.Hull.IntegerSpaceAabo = new AABOTetrahedra(aabb.Min,aabb.Max);
 
                 for (int i = 0; i < vertices.Length; ++i)
                 {

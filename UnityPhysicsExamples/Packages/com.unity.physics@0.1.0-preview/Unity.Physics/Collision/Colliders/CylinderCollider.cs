@@ -209,19 +209,19 @@ namespace Unity.Physics
         public Material Material { get => m_Header.Material; set => m_Header.Material = value; }
         public MassProperties MassProperties { get; private set; }
 
-        public AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron()
+        public AABOTetrahedra CalculateAABOTetrahedra()
         {
-            return CalculateAxisAlignedBoundingOctahedron(RigidTransform.identity);
+            return CalculateAABOTetrahedra(RigidTransform.identity);
         }
 
-        public unsafe AxisAlignedBoundingOctahedron CalculateAxisAlignedBoundingOctahedron(RigidTransform transform)
+        public unsafe AABOTetrahedra CalculateAABOTetrahedra(RigidTransform transform)
         {
             transform = math.mul(transform, new RigidTransform(m_Orientation, m_Center));
             float3 axis = math.rotate(transform, new float3(0, 0, 1));
             float3 v0 = transform.pos + axis * m_Height * 0.25f;
             float3 v1 = transform.pos - axis * m_Height * 0.25f;
             float3 e = m_Radius;
-            return new AxisAlignedBoundingOctahedron(math.min(v0, v1) - e, math.max(v0, v1) + e);
+            return new AABOTetrahedra(math.min(v0, v1) - e, math.max(v0, v1) + e);
         }
 
         // Cast a ray against this collider.

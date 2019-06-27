@@ -25,11 +25,11 @@ namespace Unity.Physics
         public Plane ProjectionPlane { get; private set; }
 
         private IntegerSpace m_IntegerSpace;
-        private AxisAlignedBoundingOctahedron m_IntegerSpaceAabo;
+        private AABOTetrahedra m_IntegerSpaceAabo;
 
         private uint m_NextUid;
 
-        public AxisAlignedBoundingOctahedron IntegerSpaceAabo
+        public AABOTetrahedra IntegerSpaceAabo
         {
             get => m_IntegerSpaceAabo;
             set {
@@ -178,7 +178,7 @@ namespace Unity.Physics
             public readonly float3 Scale;
             public readonly float3 InvScale;
 
-            public IntegerSpace(AxisAlignedBoundingOctahedron aabo, int resolution, bool uniform, float minExtent)
+            public IntegerSpace(AABOTetrahedra aabo, int resolution, bool uniform, float minExtent)
             {
                 if (uniform)
                 {
@@ -211,7 +211,7 @@ namespace Unity.Physics
             NumFaces = 0;
             NumFaceVertices = 0;
             m_NextUid = 1;
-            m_IntegerSpaceAabo = new AxisAlignedBoundingOctahedron();
+            m_IntegerSpaceAabo = new AABOTetrahedra();
             m_IntegerSpaceAabo.Reset();
             m_IntegerSpace = new IntegerSpace();
             ProjectionPlane = new Plane(new float3(0), 0);
@@ -229,7 +229,7 @@ namespace Unity.Physics
             NumFaceVertices = 0;
             ProjectionPlane = new Plane(new float3(0), 0);
             m_NextUid = 1;
-            m_IntegerSpaceAabo = new AxisAlignedBoundingOctahedron();
+            m_IntegerSpaceAabo = new AABOTetrahedra();
             m_IntegerSpaceAabo.Reset();
             m_IntegerSpace = new IntegerSpace();
         }
@@ -975,7 +975,7 @@ namespace Unity.Physics
                 planes.Add(ComputePlane(triangleIndex));
             }
 
-            AxisAlignedBoundingOctahedron actualAabo = ComputeAabo();
+            AABOTetrahedra actualAabo = ComputeAabo();
 
             Reset(true);
             AddPoint(math.select(actualAabo.Min.xyz, actualAabo.Max.xyz, new bool3(false, false, false)));
@@ -1433,9 +1433,9 @@ namespace Unity.Physics
         /// <summary>
         /// Returns the bounds of the convex hull.
         /// </summary>
-        public AxisAlignedBoundingOctahedron ComputeAabo()
+        public AABOTetrahedra ComputeAabo()
         {
-            AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
+            AABOTetrahedra aabo = new AABOTetrahedra();
             aabo.Reset();
             foreach (Vertex vertex in Vertices.Elements)
             {

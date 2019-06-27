@@ -71,7 +71,7 @@ public class DebugStream : ComponentSystem
             Writer.Write(new Box { Size = size, Center = center, Orientation = orientation, Color = color });
         }
 
-        public void Octahedron(AxisAlignedBoundingOctahedron aabo, Color color)
+        public void Octahedron(AABOTetrahedra aabo, Color color)
         {
             Writer.Write(Type.Octahedron);
             Writer.Write(new Octahedron { Aabo = aabo, Color = color });
@@ -312,7 +312,7 @@ public class DebugStream : ComponentSystem
 
     struct Octahedron
     {
-        public AxisAlignedBoundingOctahedron Aabo;
+        public AABOTetrahedra Aabo;
         public Color Color;
 
         public void Draw()

@@ -24,7 +24,7 @@ namespace Unity.Physics.Authoring
             {
                 if (Bodies[b].Collider != null)
                 {
-                    OutputStream.Octahedron(Bodies[b].Collider->CalculateAxisAlignedBoundingOctahedron(Bodies[b].WorldFromBody), Color.blue);
+                    OutputStream.Octahedron(Bodies[b].Collider->CalculateAABOTetrahedra(Bodies[b].WorldFromBody), Color.blue);
                 }
             }
             OutputStream.End();

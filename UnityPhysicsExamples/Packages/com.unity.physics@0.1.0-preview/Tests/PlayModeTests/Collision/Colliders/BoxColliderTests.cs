@@ -192,7 +192,7 @@ namespace Unity.Physics.Tests.Collision.Colliders
                 };
 
                 var boxCollider = BoxCollider.Create(center, orientation, size, convexRadius);
-                Aabb aabb = new Aabb(boxCollider.Value.CalculateAxisAlignedBoundingOctahedron());
+                Aabb aabb = new Aabb(boxCollider.Value.CalculateAABOTetrahedra());
                 TestUtils.AreEqual(expectedAabb.Min, aabb.Min, 1e-3f);
                 TestUtils.AreEqual(expectedAabb.Max, aabb.Max, 1e-3f);
             }
