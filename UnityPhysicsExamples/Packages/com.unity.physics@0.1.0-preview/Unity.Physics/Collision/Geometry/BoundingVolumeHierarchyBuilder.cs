@@ -77,7 +77,7 @@ namespace Unity.Physics
             static void ComputeAxisAndPivot(ref Range range, out int axis, out float pivot)
             {
                 // Compute axis and pivot.
-                axis = IndexOfMaxComponent(range.Domain.Size);
+                axis = IndexOfMaxComponent(range.Domain.Size.xyz);
                 pivot = ((range.Domain.Min + range.Domain.Max) / 2)[axis];
             }
 
