@@ -360,7 +360,7 @@ namespace Unity.Physics.Tests.Collision.Geometry
 
             var nodeFilters = new NativeArray<CollisionFilter>(numNodes, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
             var bvhFiltered = new BoundingVolumeHierarchy(nodes, nodeFilters);
-            int numNodesFilteredTree;
+ //           int numNodesFilteredTree;
           // bvhFiltered.Build(points, aabbs, out numNodesFilteredTree);
            // bvhFiltered.BuildCombinedCollisionFilter(bodyFilters, 0, numNodesFilteredTree - 1);
 

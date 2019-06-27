@@ -40,10 +40,6 @@ namespace Unity.Collections
 
         public static JobHandle ScheduleConstruct(out BlockStream blockStream, NativeArray<int> lengthFromIndex0, uint uniqueBlockStreamId, JobHandle dependency, Allocator allocator = Allocator.TempJob)
         {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (lengthFromIndex0.Length == 0 || lengthFromIndex0[0] == 0)
-                throw new ArgumentException("oop");
-#endif
             AllocateBlock(out blockStream, uniqueBlockStreamId, allocator);
             var jobData = new ConstructJob { Length = lengthFromIndex0, BlockStream = blockStream };
             return jobData.Schedule(dependency);
