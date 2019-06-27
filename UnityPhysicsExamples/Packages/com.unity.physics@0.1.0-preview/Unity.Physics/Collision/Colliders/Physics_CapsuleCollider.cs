@@ -122,7 +122,47 @@ namespace Unity.Physics
             float3 v0 = math.transform(transform, m_Vertex0);
             float3 v1 = math.transform(transform, m_Vertex1);
             float3 radius = new float3(Radius);
-            return new AABOTetrahedra(math.min(v0, v1) - radius, math.max(v0, v1) + radius);
+
+            float3 mn =  v0;
+            float3 mx =  v1;
+
+            AABOTetrahedra aabo1 = new AABOTetrahedra();
+            aabo1.Reset();
+            aabo1.Min.x =   mn.x - Radius;
+            aabo1.Min.y =   mn.y - Radius;
+            aabo1.Min.z =   mn.z - Radius;
+            aabo1.Min.w = -(mn.x + 
+                            mn.y +
+                            mn.z) - (Radius * math.sqrt(3));
+
+            aabo1.Max.x = mn.x + Radius;
+            aabo1.Max.y = mn.y + Radius;
+            aabo1.Max.z = mn.z + Radius;
+            aabo1.Max.w = -(mn.x +
+                            mn.y +
+                            mn.z) + (Radius * math.sqrt(3));
+
+            AABOTetrahedra aabo2 = new AABOTetrahedra();
+            aabo2.Reset();
+
+            aabo2.Min.x = mx.x - Radius;
+            aabo2.Min.y = mx.y - Radius;
+            aabo2.Min.z = mx.z - Radius;
+            aabo2.Min.w = -(mx.x +
+                            mx.y +
+                            mx.z) - (Radius * math.sqrt(3));
+
+            aabo2.Max.x =   mx.x + Radius;
+            aabo2.Max.y =   mx.y + Radius;
+            aabo2.Max.z =   mx.z + Radius;
+            aabo2.Max.w = -(mx.x + 
+                            mx.y +
+                            mx.z) + (Radius * math.sqrt(3));
+            aabo1.Include(aabo2);
+
+            return aabo1;
+
+            //return new AABOTetrahedra(math.min(v0, v1) - radius, math.max(v0, v1) + radius);
         }
 
         // Cast a ray against this collider.
