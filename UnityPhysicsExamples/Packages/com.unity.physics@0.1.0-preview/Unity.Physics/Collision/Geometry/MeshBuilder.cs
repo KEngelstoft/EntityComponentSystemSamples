@@ -851,10 +851,10 @@ namespace Unity.Physics
                     
                     AxisAlignedBoundingOctahedron quadAabo = new AxisAlignedBoundingOctahedron();
                     quadAabo.Reset();
-                    quadAabo.Add(vertices[vis[0]]);
-                    quadAabo.Add(vertices[vis[1]]);
-                    quadAabo.Add(vertices[vis[2]]);
-                    quadAabo.Add(vertices[vis[3]]);
+                    quadAabo.Include(vertices[vis[0]]);
+                    quadAabo.Include(vertices[vis[1]]);
+                    quadAabo.Include(vertices[vis[2]]);
+                    quadAabo.Include(vertices[vis[3]]);
 
                     float aaboSurfaceArea = Utils.CalcSurfaceArea(quadAabo);
                     if (aaboSurfaceArea > Math.Constants.Eps)

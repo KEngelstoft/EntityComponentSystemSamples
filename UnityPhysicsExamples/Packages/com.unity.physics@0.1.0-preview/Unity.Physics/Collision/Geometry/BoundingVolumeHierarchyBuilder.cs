@@ -112,7 +112,7 @@ namespace Unity.Physics
 
                 for (int i = 0; i < points.Length; i++)
                 {
-                    runningAabo.Merge(Aabos[p[i].Index]);
+                    runningAabo.Include(Aabos[p[i].Index]);
                     scores[i] = (i + 1) * Utils.CalcSurfaceArea(runningAabo);
                 }
 
@@ -121,7 +121,7 @@ namespace Unity.Physics
 
                 for (int i = points.Length - 1, j = 1; i > 0; --i, ++j)
                 {
-                    runningAabo.Merge(Aabos[p[i].Index]);
+                    runningAabo.Include(Aabos[p[i].Index]);
                     float sum = scores[i - 1] + j * Utils.CalcSurfaceArea(runningAabo);
                     if (sum < minScore)
                     {
@@ -216,19 +216,19 @@ namespace Unity.Physics
 
                     while (start <= end && (*start)[axis] < pivot)
                     {
-                        lDomain.Add((*(start++)).xyz);
+                        lDomain.Include((*(start++)).xyz);
                     }
 
                     // Consume right.
                     while (end > start && (*end)[axis] >= pivot)
                     {
-                        rDomain.Add((*(end--)).xyz);
+                        rDomain.Include((*(end--)).xyz);
                     }
 
                     if (start >= end) goto FINISHED;
 
-                    lDomain.Add((*end).xyz);
-                    rDomain.Add((*start).xyz);
+                    lDomain.Include((*end).xyz);
+                    rDomain.Include((*start).xyz);
 
                     Swap(ref *(start++), ref *(end--));
                 } while (true);
@@ -760,7 +760,7 @@ namespace Unity.Physics
             aabo.Reset();
             for (int i = 0; i < length; i++)
             {
-                aabo.Add(points[i].xyz);
+                aabo.Include(points[i].xyz);
             }
         }
 

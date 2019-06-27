@@ -560,13 +560,13 @@ namespace Unity.Physics
             AxisAlignedBoundingOctahedron aaboA = new AxisAlignedBoundingOctahedron(verticesA[0]);
             for (int i = 1; i < numVerticesA; i++)
             {
-                aaboA.Add(verticesA[i]);
+                aaboA.Include(verticesA[i]);
             }
 
             AxisAlignedBoundingOctahedron aaboB = new AxisAlignedBoundingOctahedron(verticesB[0]);
             for (int i = 1; i < numVerticesB; i++)
             {
-                aaboB.Add(verticesB[i]);
+                aaboB.Include(verticesB[i]);
             }
 
             AxisAlignedBoundingOctahedron aabbBinA = Math.TransformAabo(aFromB, aaboB);

@@ -169,11 +169,10 @@ namespace Unity.Physics
 
             // Generate convex hull
             var aaboMesh = Utils.GenerateMesh(aabo, Allocator.Temp);
-            for (int i = 0; i < aaboMesh.indices.Length; ++i)
+            for (int i = 0; i < aaboMesh.vertices.Length; ++i)
             {
-                var idx0 = aaboMesh.indices[i];
-                float3 transformed = Mul(transform, aaboMesh.vertices[idx0]);
-                transformedAabo.Add(transformed);
+                float3 transformed = Mul(transform, aaboMesh.vertices[i]);
+                transformedAabo.Include(transformed);
             }
             aaboMesh.Dispose();
 

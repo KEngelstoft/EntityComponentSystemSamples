@@ -319,16 +319,13 @@ public class DebugStream : ComponentSystem
         {
 #if UNITY_EDITOR
             var aaboMesh = Utils.GenerateMesh(Aabo, Allocator.Temp);
-            var numLines = aaboMesh.indices.Length / 2;
+            var numLines = aaboMesh.lineList.Length / 2;
 
             Handles.color = Color;
             for (int i = 0; i < numLines; ++i)
             {
-                var idx0 = aaboMesh.indices[i * 2 + 0];
-                var idx1 = aaboMesh.indices[i * 2 + 1];
-
-                Vector3 from = aaboMesh.vertices[idx0];
-                Vector3 to = aaboMesh.vertices[idx1];
+                Vector3 from = aaboMesh.vertices[i];
+                Vector3 to = aaboMesh.vertices[i];
                 Handles.DrawLine(from, to);
             }
 

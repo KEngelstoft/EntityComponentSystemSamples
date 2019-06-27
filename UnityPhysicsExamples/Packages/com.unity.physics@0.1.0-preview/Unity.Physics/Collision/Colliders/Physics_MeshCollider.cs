@@ -73,10 +73,10 @@ namespace Unity.Physics
 
                     aabos[i] = new AxisAlignedBoundingOctahedron();
                     aabos[i].Reset();
-                    aabos[i].Add(p.Vertices.c0);
-                    aabos[i].Add(p.Vertices.c1);
-                    aabos[i].Add(p.Vertices.c2);
-                    aabos[i].Add(p.Vertices.c3);
+                    aabos[i].Include(p.Vertices.c0);
+                    aabos[i].Include(p.Vertices.c1);
+                    aabos[i].Include(p.Vertices.c2);
+                    aabos[i].Include(p.Vertices.c3);
 
                     //AxisAlignedBoundingOctahedron a = new AxisAlignedBoundingOctahedron(p.Vertices,0,p.)
                     //aabbs[i] = Aabb.CreateFromPoints(p.Vertices);

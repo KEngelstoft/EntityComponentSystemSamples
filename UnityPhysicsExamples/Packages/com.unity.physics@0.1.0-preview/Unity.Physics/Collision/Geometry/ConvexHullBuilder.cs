@@ -299,7 +299,7 @@ namespace Unity.Physics
             bool intSpaceUpdated = false;
             if (!m_IntegerSpaceAabo.Contains(point))
             {
-                m_IntegerSpaceAabo.Add(point);
+                m_IntegerSpaceAabo.Include(point);
                 UpdateIntSpace();
                 intSpaceUpdated = true;
             }
@@ -1439,7 +1439,7 @@ namespace Unity.Physics
             aabo.Reset();
             foreach (Vertex vertex in Vertices.Elements)
             {
-                aabo.Add(vertex.Position);
+                aabo.Include(vertex.Position);
             }
             return aabo;
         }

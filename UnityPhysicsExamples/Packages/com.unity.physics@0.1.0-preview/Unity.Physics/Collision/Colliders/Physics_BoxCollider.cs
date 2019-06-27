@@ -212,8 +212,8 @@ namespace Unity.Physics
 
             AxisAlignedBoundingOctahedron aabo = new AxisAlignedBoundingOctahedron();
             aabo.Reset();
-            aabo.Add(centerInB - halfExtentsInB);
-            aabo.Add(centerInB + halfExtentsInB);
+            aabo.Include(centerInB - halfExtentsInB);
+            aabo.Include(centerInB + halfExtentsInB);
 
             return aabo;
         }

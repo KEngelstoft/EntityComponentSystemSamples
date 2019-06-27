@@ -49,7 +49,7 @@ namespace Unity.Physics
                 {
                     throw new ArgumentException("Tried to create ConvexCollider with invalid points");
                 }
-                domain.Add(point * s);
+                domain.Include(point * s);
             }
 
             // Add points to the hull
